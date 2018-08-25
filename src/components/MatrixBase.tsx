@@ -26,20 +26,21 @@ export const styles = createStyles({
         backgroundColor: 'whitesmoke',
         position: 'sticky' as 'sticky',
         top: 0,
-        display: 'flex'
+        display: 'flex',
+        borderBottom: '1px solid',
     },
     rowContainer: {
-        display: 'flex'
+        width: 'fit-content',
+        display: 'flex',
+        borderTop: '1px solid',
     },
     cellContainer: {
         flexShrink: 0,
-        border: '1px solid',
         width: `${CELL_WIDTH_PX}px`,
         height: `${CONTENT_CELL_HEIGHT_PX}px`,
     },
     headerCellContainer: {
         flexShrink: 0,
-        border: '1px solid',
         width: `${CELL_WIDTH_PX}px`,
         height: `${HEADER_CELL_HEIGHT_PX}px`,
     },
