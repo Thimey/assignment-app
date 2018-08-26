@@ -6,6 +6,11 @@ import { Worker, Task } from '../data'
 
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 
+export const CELL_WIDTH_PX = 100
+export const HEADER_CELL_HEIGHT_PX = 50
+export const CONTENT_CELL_HEIGHT_PX = 100
+
+
 const styles = createStyles({
     container: {
         height: '80%',
@@ -47,6 +52,9 @@ class CostMatrix extends React.Component<Props> {
                     renderCell={this.renderCost}
                     renderColHeader={this.renderTask}
                     renderRowHeader={this.renderWorker}
+                    cellWidthPx={CELL_WIDTH_PX}
+                    cellHeaderHeightPx={HEADER_CELL_HEIGHT_PX}
+                    cellContentHeightPx={CONTENT_CELL_HEIGHT_PX}
                 />
             </div>
         )

@@ -2,10 +2,6 @@ import * as React from 'react'
 
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 
-export const CELL_WIDTH_PX = 200
-export const HEADER_CELL_HEIGHT_PX = 100
-export const CONTENT_CELL_HEIGHT_PX = 200
-
 export const styles = createStyles({
     container:  {
         display: 'flex',
@@ -17,9 +13,7 @@ export const styles = createStyles({
             display: 'none',
         },
     },
-    contentContainer: {
-        height: `calc(100% - ${HEADER_CELL_HEIGHT_PX}px)`,
-    },
+    contentContainer: {},
     headerContainer: {
         width: 'fit-content',
         zIndex: 2,
@@ -36,13 +30,9 @@ export const styles = createStyles({
     },
     cellContainer: {
         flexShrink: 0,
-        width: `${CELL_WIDTH_PX}px`,
-        height: `${CONTENT_CELL_HEIGHT_PX}px`,
     },
     headerCellContainer: {
         flexShrink: 0,
-        width: `${CELL_WIDTH_PX}px`,
-        height: `${HEADER_CELL_HEIGHT_PX}px`,
     },
 })
 
@@ -53,10 +43,33 @@ export interface IProps<T> extends WithStyles {
     headers : any[]
     onScroll : (scrollTop : number) => void
     scrollTop : number
+    cellContentHeightPx : number
+    cellHeaderHeightPx : number
+    cellWidthPx : number
 }
 
 export class MatrixContent<T> extends React.Component<IProps<T>> {
     private scrollEl : HTMLElement | null = null
+
+    componentWillReceiveProps(newProps : IProps<T>) {
+        if (this.props.scrollTop !==  newProps.scrollTop && this.scrollEl) {
+            this.scrollEl.scrollTop = newProps.scrollTop
+        }
+    }
+
+    private get cellContentContainerDimensions() {
+        return {
+            height: `${this.props.cellContentHeightPx}px`,
+            width: `${this.props.cellWidthPx}px`,
+        }
+    }
+
+    private get cellHeaderContainerDimensions() {
+        return {
+            height: `${this.props.cellHeaderHeightPx}px`,
+            width: `${this.props.cellWidthPx}px`,
+        }
+    }
 
     private assignScrollEl = (node : HTMLElement | null) => { this.scrollEl = node }
 
@@ -66,15 +79,12 @@ export class MatrixContent<T> extends React.Component<IProps<T>> {
         }
     }
 
-    componentWillReceiveProps(newProps : IProps<T>) {
-        if (this.props.scrollTop !==  newProps.scrollTop && this.scrollEl) {
-            this.scrollEl.scrollTop = newProps.scrollTop
-        }
-    }
-
     private renderCell = (cellData : T) => {
         return (
-            <div className={this.props.classes.cellContainer}>
+            <div
+                style={this.cellContentContainerDimensions}
+                className={this.props.classes.cellContainer}
+            >
                 {
                     this.props.renderCell(cellData)
                 }
@@ -84,7 +94,10 @@ export class MatrixContent<T> extends React.Component<IProps<T>> {
 
     private renderHeaderCell = (headerData : any) => {
         return (
-            <div className={this.props.classes.headerCellContainer}>
+            <div
+                style={this.cellHeaderContainerDimensions}
+                className={this.props.classes.headerCellContainer}
+            >
                 {
                     this.props.renderHeader(headerData)
                 }
@@ -114,7 +127,7 @@ export class MatrixContent<T> extends React.Component<IProps<T>> {
     }
 
     render() {
-        const { classes, cells } = this.props
+        const { classes, cells, cellHeaderHeightPx } = this.props
 
         return (
             <div
@@ -127,7 +140,12 @@ export class MatrixContent<T> extends React.Component<IProps<T>> {
                     this.renderHeader()
                 }
 
-                <div className={classes.contentContainer}>
+                <div
+                    style={{
+                        height: `calc(100% - ${cellHeaderHeightPx}px)`,
+                    }}
+                    className={classes.contentContainer}
+                >
                     {
                         cells.map(this.renderRow)
                     }

@@ -2,9 +2,7 @@ import * as React from 'react'
 
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 
-import MatrixBase, {
-    CELL_WIDTH_PX,
-} from '../components/MatrixBase'
+import MatrixBase from '../components/MatrixBase'
 
 const MATRIX_BORDER_PX = 2
 
@@ -17,7 +15,6 @@ const styles = createStyles({
     matrix1Container: {
     },
     matrix2Container: {
-        width: `calc(100% - ${CELL_WIDTH_PX}px)`
     },
 })
 
@@ -28,6 +25,9 @@ export interface IProps<T, U, P> extends WithStyles<typeof styles> {
     renderCell : (data : T) => JSX.Element | null
     renderRowHeader : (data : U) => JSX.Element | null
     renderColHeader : (data : P) => JSX.Element | null
+    cellContentHeightPx : number
+    cellHeaderHeightPx : number
+    cellWidthPx : number
 }
 
 export interface IState {
@@ -50,6 +50,9 @@ export class CostMatrix<T, U, P> extends React.Component<IProps<T, U, P>, IState
             renderCell,
             renderColHeader,
             renderRowHeader,
+            cellWidthPx,
+            cellHeaderHeightPx,
+            cellContentHeightPx
         } = this.props
 
         return (
@@ -63,10 +66,13 @@ export class CostMatrix<T, U, P> extends React.Component<IProps<T, U, P>, IState
                         headers={[0]}
                         renderCell={renderRowHeader}
                         renderHeader={this.renderNull}
+                        cellWidthPx={cellWidthPx}
+                        cellHeaderHeightPx={cellHeaderHeightPx}
+                        cellContentHeightPx={cellContentHeightPx}
                     />
                 </div>
 
-                <div className={classes.matrix2Container}>
+                <div style={{ width: `calc(100% - ${cellWidthPx}px)` }}>
                     <MatrixBase
                         onScroll={this.onScroll}
                         scrollTop={this.state.scrollTop}
@@ -74,6 +80,9 @@ export class CostMatrix<T, U, P> extends React.Component<IProps<T, U, P>, IState
                         headers={colHeaders}
                         renderCell={renderCell}
                         renderHeader={renderColHeader}
+                        cellWidthPx={cellWidthPx}
+                        cellHeaderHeightPx={cellHeaderHeightPx}
+                        cellContentHeightPx={cellContentHeightPx}
                     />
                 </div>
             </div>
