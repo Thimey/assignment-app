@@ -24,6 +24,7 @@ export const styles = createStyles({
         borderBottom: '1px solid',
     },
     rowContainer: {
+        position: 'relative',
         width: 'fit-content',
         display: 'flex',
         borderTop: '1px solid',
@@ -34,24 +35,42 @@ export const styles = createStyles({
     headerCellContainer: {
         flexShrink: 0,
     },
+    overlay: {
+        top: 0,
+        height: '100%',
+        position: 'absolute',
+        backgroundColor: 'red',
+    }
 })
 
-export interface IProps<T> extends WithStyles {
-    renderCell : (cellData : T) => JSX.Element | null
-    renderHeader : (cellData : T) => JSX.Element | null
+export interface Overlay {
+    startPx : number
+    withPx : number
+    data : any
+}
+
+export interface BaseProps<T> {
     cells : T[][]
-    headers : any[]
-    onScroll : (scrollTop : number) => void
-    scrollTop : number
+    cellOverlays ?: Overlay[][]
+    renderOverlay ?: (overlay : Overlay) => JSX.Element
+
+    renderCell : (cellData : T) => JSX.Element | null
     cellContentHeightPx : number
     cellHeaderHeightPx : number
     cellWidthPx : number
 }
 
-export class MatrixContent<T> extends React.Component<IProps<T>> {
+export interface Props<T> extends BaseProps<T>, WithStyles<typeof styles> {
+    renderHeader : (cellData : T) => JSX.Element | null
+    headers : any[]
+    onScroll : (scrollTop : number) => void
+    scrollTop : number
+}
+
+export class MatrixContent<T> extends React.Component<Props<T>> {
     private scrollEl : HTMLElement | null = null
 
-    componentWillReceiveProps(newProps : IProps<T>) {
+    componentWillReceiveProps(newProps : Props<T>) {
         if (this.props.scrollTop !==  newProps.scrollTop && this.scrollEl) {
             this.scrollEl.scrollTop = newProps.scrollTop
         }
@@ -105,10 +124,31 @@ export class MatrixContent<T> extends React.Component<IProps<T>> {
         )
     }
 
-
-    private renderRow = (row : T[]) => {
+    private renderOverlay = (overlay : Overlay) => {
         return (
-            <div className={this.props.classes.rowContainer}>
+            <div
+                className={this.props.classes.overlay}
+                style={{
+                    left: overlay.startPx,
+                    width: overlay.withPx,
+                }}
+            >
+                {
+                    this.renderOverlay(overlay)
+                }
+            </div>
+        )
+    }
+
+    private renderRow = (row : T[], index : number) => {
+        const { classes, cellOverlays } = this.props
+        return (
+            <div className={classes.rowContainer}>
+                {
+                    cellOverlays && cellOverlays[index] &&
+                    cellOverlays[index].map(this.renderOverlay)
+                }
+
                 {
                     row.map(this.renderCell)
                 }

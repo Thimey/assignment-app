@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 
-import MatrixBase from '../components/MatrixBase'
+import MatrixBase, { BaseProps as MatrixBaseProps } from '../components/MatrixBase'
 
 const MATRIX_BORDER_PX = 2
 
@@ -18,16 +18,11 @@ const styles = createStyles({
     },
 })
 
-export interface IProps<T, U, P> extends WithStyles<typeof styles> {
-    cells : T[][]
+export interface IProps<T, U, P> extends MatrixBaseProps<T>, WithStyles<typeof styles> {
     rowHeaders : U[]
     colHeaders : P[]
-    renderCell : (data : T) => JSX.Element | null
     renderRowHeader : (data : U) => JSX.Element | null
     renderColHeader : (data : P) => JSX.Element | null
-    cellContentHeightPx : number
-    cellHeaderHeightPx : number
-    cellWidthPx : number
 }
 
 export interface IState {

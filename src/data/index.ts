@@ -10,6 +10,19 @@ export interface Task {
     qty : number
 }
 
+export interface Time {
+    hour : number
+    min : number
+}
+
+export interface Schedule {
+    id : number
+    tasks : {
+        taskId : number
+        times : Time[]
+    }[]
+}
+
 const getUrl = (path : string) => `http://localhost:3000${path}`
 
 const fetchData = (path : string, method : string) => async (payload ?: any) => {
@@ -29,4 +42,5 @@ const fetchData = (path : string, method : string) => async (payload ?: any) => 
 
 export const getWorkers = fetchData('/workers', 'GET')
 export const getTasks = fetchData('/tasks', 'GET')
+export const getSchedules = fetchData('/schedules', 'GET')
 
