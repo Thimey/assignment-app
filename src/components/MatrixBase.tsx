@@ -98,9 +98,10 @@ export class MatrixContent<T> extends React.Component<Props<T>> {
         }
     }
 
-    private renderCell = (cellData : T) => {
+    private renderCell = (cellData : T, index : number) => {
         return (
             <div
+                key={index}
                 style={this.cellContentContainerDimensions}
                 className={this.props.classes.cellContainer}
             >
@@ -111,9 +112,10 @@ export class MatrixContent<T> extends React.Component<Props<T>> {
         )
     }
 
-    private renderHeaderCell = (headerData : any) => {
+    private renderHeaderCell = (headerData : any, index : number) => {
         return (
             <div
+                key={index}
                 style={this.cellHeaderContainerDimensions}
                 className={this.props.classes.headerCellContainer}
             >
@@ -124,9 +126,10 @@ export class MatrixContent<T> extends React.Component<Props<T>> {
         )
     }
 
-    private renderOverlay = (overlay : Overlay) => {
+    private renderOverlay = (overlay : Overlay, index : number) => {
         return (
             <div
+                key={index}
                 className={this.props.classes.overlay}
                 style={{
                     left: overlay.startPx,
@@ -134,7 +137,8 @@ export class MatrixContent<T> extends React.Component<Props<T>> {
                 }}
             >
                 {
-                    this.renderOverlay(overlay)
+                    this.props.renderOverlay &&
+                    this.props.renderOverlay(overlay)
                 }
             </div>
         )
@@ -143,7 +147,7 @@ export class MatrixContent<T> extends React.Component<Props<T>> {
     private renderRow = (row : T[], index : number) => {
         const { classes, cellOverlays } = this.props
         return (
-            <div className={classes.rowContainer}>
+            <div key={index} className={classes.rowContainer}>
                 {
                     cellOverlays && cellOverlays[index] &&
                     cellOverlays[index].map(this.renderOverlay)

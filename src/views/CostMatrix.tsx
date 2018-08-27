@@ -3,13 +3,13 @@ import Matrix from '../components/Matrix'
 
 import getCost from '../lib/getCost'
 import { Worker, Task } from '../data'
+import {
+    COST_MATRIX_CELL_WIDTH_PX,
+    COST_MATRIX_HEADER_CELL_HEIGHT_PX,
+    COST_MATRIX_CONTENT_CELL_HEIGHT_PX,
+} from '../config'
 
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
-
-export const CELL_WIDTH_PX = 100
-export const HEADER_CELL_HEIGHT_PX = 50
-export const CONTENT_CELL_HEIGHT_PX = 100
-
 
 const styles = createStyles({
     container: {
@@ -52,9 +52,9 @@ class CostMatrix extends React.Component<Props> {
                     renderCell={this.renderCost}
                     renderColHeader={this.renderTask}
                     renderRowHeader={this.renderWorker}
-                    cellWidthPx={CELL_WIDTH_PX}
-                    cellHeaderHeightPx={HEADER_CELL_HEIGHT_PX}
-                    cellContentHeightPx={CONTENT_CELL_HEIGHT_PX}
+                    cellWidthPx={COST_MATRIX_CELL_WIDTH_PX}
+                    cellHeaderHeightPx={COST_MATRIX_HEADER_CELL_HEIGHT_PX}
+                    cellContentHeightPx={COST_MATRIX_CONTENT_CELL_HEIGHT_PX}
                 />
             </div>
         )

@@ -4,6 +4,8 @@ import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 
 import MatrixBase, { BaseProps as MatrixBaseProps } from '../components/MatrixBase'
 
+export * from './MatrixBase'
+
 const MATRIX_BORDER_PX = 2
 
 const styles = createStyles({
@@ -45,6 +47,8 @@ export class CostMatrix<T, U, P> extends React.Component<IProps<T, U, P>, IState
             renderCell,
             renderColHeader,
             renderRowHeader,
+            renderOverlay,
+            cellOverlays,
             cellWidthPx,
             cellHeaderHeightPx,
             cellContentHeightPx
@@ -78,6 +82,8 @@ export class CostMatrix<T, U, P> extends React.Component<IProps<T, U, P>, IState
                         cellWidthPx={cellWidthPx}
                         cellHeaderHeightPx={cellHeaderHeightPx}
                         cellContentHeightPx={cellContentHeightPx}
+                        renderOverlay={renderOverlay}
+                        cellOverlays={cellOverlays}
                     />
                 </div>
             </div>

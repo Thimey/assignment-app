@@ -7,6 +7,7 @@ import {
     getWorkers,
     getTasks,
     getSchedules,
+    saveSchedule,
     Schedule,
     Worker,
     Task,
@@ -53,6 +54,11 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
     private getTasks = async () => this.setState({ tasks: await getTasks() })
     private getSchedules = async () => this.setState({ schedules: await getSchedules() })
 
+    private saveSchedule = async (schedule : Schedule) => {
+        await saveSchedule(schedule)
+        this.getSchedules()
+    }
+
 
     public render() {
         const { display } = this.state
@@ -72,6 +78,7 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                     <ScheduleMatrix
                         schedules={this.state.schedules}
                         tasks={this.state.tasks}
+                        saveSchedule={this.saveSchedule}
                     />
                 }
             </div>

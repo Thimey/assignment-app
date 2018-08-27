@@ -15,17 +15,26 @@ export interface Time {
     min : number
 }
 
+export interface ScheduledTask {
+    id : number
+    taskId : number
+    startTime : Time
+    endTime : Time
+}
+
 export interface Schedule {
     id : number
-    tasks : {
-        taskId : number
-        times : Time[]
-    }[]
+    name : string
+    tasks : ScheduledTask[]
 }
 
 const getUrl = (path : string) => `http://localhost:3000${path}`
 
 const fetchData = (path : string, method : string) => async (payload ?: any) => {
+    const headers = {
+        'Content-Type': 'application/json',
+    }
+
     const options = !payload
         ? { method }
         : {
@@ -33,7 +42,7 @@ const fetchData = (path : string, method : string) => async (payload ?: any) => 
             body: JSON.stringify(payload)
         }
 
-    const resp = await fetch(getUrl(path), options)
+    const resp = await fetch(getUrl(path), { ...options, headers })
 
     if (resp.status === 200) {
         return resp.json()
@@ -43,4 +52,5 @@ const fetchData = (path : string, method : string) => async (payload ?: any) => 
 export const getWorkers = fetchData('/workers', 'GET')
 export const getTasks = fetchData('/tasks', 'GET')
 export const getSchedules = fetchData('/schedules', 'GET')
+export const saveSchedule = fetchData('/schedules', 'POST')
 
