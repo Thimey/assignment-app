@@ -10,7 +10,7 @@ import { Schedule } from '../data'
 
 const styles = createStyles({
     selected: {
-        color: 'red'
+        backgroundColor: '#d4eff7'
     }
 
 })
@@ -33,9 +33,11 @@ function ScheduleList({
             {
                 schedules.map(sch =>
                     <ListItem
-                        className={classnames({
-                            [classes.selected]: selectedScheduleId === sch.id
-                        })}
+                        classes={{
+                            button: classnames({
+                                [classes.selected]: selectedScheduleId === sch.id
+                            })
+                        }}
                         button
                         key={sch.id}
                         onClick={() => onScheduleClick(sch)}

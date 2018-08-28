@@ -45,7 +45,7 @@ export const styles = createStyles({
 
 export interface Overlay {
     startPx : number
-    withPx : number
+    widthPx : number
     data : any
 }
 
@@ -133,7 +133,7 @@ export class MatrixContent<T> extends React.Component<Props<T>> {
                 className={this.props.classes.overlay}
                 style={{
                     left: overlay.startPx,
-                    width: overlay.withPx,
+                    width: overlay.widthPx,
                 }}
             >
                 {

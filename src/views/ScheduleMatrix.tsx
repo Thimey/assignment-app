@@ -2,8 +2,9 @@ import * as React from 'react'
 import Matrix, { Overlay } from '../components/Matrix'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Divider from '@material-ui/core/Divider'
+import Typography from '@material-ui/core/Typography'
 
-import { getTimes } from '../lib/time'
+import { getTimes, renderTime, getTimeOverlayPx } from '../lib/time'
 import { Task, Schedule, Time } from '../data'
 import NewSchedule from '../components/NewSchedule'
 import ScheduleList from '../components/ScheduleList'
@@ -31,12 +32,28 @@ const styles = createStyles({
     matrixContainer: {
         width: `calc(100% - ${SIDE_BAR_WIDTH_PX}px)`,
     },
+    cellContainer: {
+        height: '100%',
+        width: '100%',
+        cursor: 'pointer',
+        '&:hover': {
+            backgroundColor: '#d4eff7',
+        },
+    }
 })
+
+export interface ScheduleData {
+    time : Time
+    task : Task
+}
 
 export interface Props extends WithStyles<typeof styles> {
     schedules : Schedule[]
+    selectedScheduleId : number | null
+    onScheduleSelect : (schedule : Schedule) => void
     tasks : Task[]
     saveSchedule : (schedule : Schedule) => void
+    onCellClick : (cellData : ScheduleData) => void
 }
 
 export interface State {
@@ -46,35 +63,72 @@ export interface State {
 class ScheduleMatrix extends React.Component<Props, State> {
     state = { displaySchedule: null }
 
-    private get taskSchedules() {
-        return [
-            [
-                {
-                    data: 'some data',
-                    startPx: 600,
-                    withPx: 400,
-                } as Overlay
-            ]
-        ]
-    }
+    private getTaskSchedules() {
+        const { tasks, selectedScheduleId, schedules } = this.props
 
-    private get cells() {
-        const { tasks } = this.props
-        const times = getTimes()
+        const selectedSchedule = selectedScheduleId === null
+            ? null
+            : schedules.find(s => s.id === selectedScheduleId)
 
-        return tasks.reduce((acc, _task) => ([
+
+        if (!selectedSchedule) {
+            return []
+        }
+
+        return tasks.reduce((acc, task) => ([
             ...acc,
-            [...times],
+            selectedSchedule.tasks
+                .filter(schTask => schTask.taskId === task.id )
+                .map(schTask => ({
+                    ...getTimeOverlayPx(schTask),
+                    data: task,
+                })),
         ]), [])
     }
 
-    private renderOverlay = ({ data } : Overlay) => <div>{data}</div>
-    private renderBlank = (cost : number) => <div></div>
+    private get cells() : ScheduleData[][] {
+        const { tasks } = this.props
+        const times = getTimes()
+
+        return tasks.reduce((acc, task) => ([
+            ...acc,
+            times.map(time => ({ time, task })),
+        ]), [])
+    }
+
+    private handleCellClick = (cellData : ScheduleData) => () =>
+        this.props.onCellClick(cellData)
+
+    private renderOverlay = ({ data } : Overlay) => <div>asd</div>
     private renderTask = (task : Task) => <div>{task.name}</div>
-    private renderTime = (time : Time) => <div>{`${time.hour} : ${time.min}`}</div>
+    private renderTime = (time : Time) => <div>{renderTime(time)}</div>
+
+    private renderCell = (cellData : ScheduleData) => (
+        <div
+            onClick={this.handleCellClick(cellData)}
+            className={this.props.classes.cellContainer}
+        >
+
+        </div>
+    )
+
+    private renderNullSchedule() {
+        return (
+            <Typography variant="display1">
+                Select/create Schedule to start!
+            </Typography>
+        )
+    }
 
     public render() {
-        const { tasks, classes, saveSchedule } = this.props
+        const {
+            tasks,
+            classes,
+            saveSchedule,
+            selectedScheduleId,
+            schedules,
+            onScheduleSelect,
+        } = this.props
 
         return (
             <div className={classes.container}>
@@ -87,25 +141,30 @@ class ScheduleMatrix extends React.Component<Props, State> {
                     <Divider />
 
                     <ScheduleList
-                        schedules={this.props.schedules}
-                        onScheduleClick={(s : any) => console.log(s)}
+                        schedules={schedules}
+                        onScheduleClick={onScheduleSelect}
+                        selectedScheduleId={selectedScheduleId}
                     />
                 </div>
 
                 <div className={classes.matrixContainer}>
-                    <Matrix
-                        cells={this.cells}
-                        colHeaders={getTimes()}
-                        rowHeaders={tasks}
-                        renderCell={this.renderBlank}
-                        renderColHeader={this.renderTime}
-                        renderRowHeader={this.renderTask}
-                        cellWidthPx={SCHEDULE_CELL_WIDTH_PX}
-                        cellHeaderHeightPx={SCHEDULE_HEADER_CELL_HEIGHT_PX}
-                        cellContentHeightPx={SCHEDULE_CONTENT_CELL_HEIGHT_PX}
-                        cellOverlays={this.taskSchedules}
-                        renderOverlay={this.renderOverlay}
-                    />
+                    {
+                        selectedScheduleId === null
+                            ? this.renderNullSchedule()
+                            : <Matrix
+                                cells={this.cells}
+                                colHeaders={getTimes()}
+                                rowHeaders={tasks}
+                                renderCell={this.renderCell}
+                                renderColHeader={this.renderTime}
+                                renderRowHeader={this.renderTask}
+                                cellWidthPx={SCHEDULE_CELL_WIDTH_PX}
+                                cellHeaderHeightPx={SCHEDULE_HEADER_CELL_HEIGHT_PX}
+                                cellContentHeightPx={SCHEDULE_CONTENT_CELL_HEIGHT_PX}
+                                cellOverlays={this.getTaskSchedules()}
+                                renderOverlay={this.renderOverlay}
+                            />
+                    }
                 </div>
             </div>
         )

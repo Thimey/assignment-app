@@ -16,7 +16,7 @@ export interface Time {
 }
 
 export interface ScheduledTask {
-    id : number
+    id : string
     taskId : number
     startTime : Time
     endTime : Time
@@ -53,4 +53,5 @@ export const getWorkers = fetchData('/workers', 'GET')
 export const getTasks = fetchData('/tasks', 'GET')
 export const getSchedules = fetchData('/schedules', 'GET')
 export const saveSchedule = fetchData('/schedules', 'POST')
+export const updateSchedule = (id : number) => fetchData(`/schedules/${id}`, 'PUT')
 
