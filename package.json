@@ -12,16 +12,19 @@
   },
   "dependencies": {
     "@material-ui/core": "^1.5.1",
+    "@material-ui/icons": "^3.0.1",
     "@types/classnames": "^2.2.6",
     "@types/uuid": "^3.4.3",
     "classnames": "^2.2.6",
+    "mobx": "^5.1.0",
+    "mobx-react": "^5.2.5",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "uuid": "^3.3.2"
   },
   "scripts": {
     "start": "react-scripts-ts start",
-    "start-data": "json-server --watch db.json",
+    "data": "json-server --watch db.json",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"

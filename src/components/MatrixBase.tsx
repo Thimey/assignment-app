@@ -27,7 +27,7 @@ export const styles = createStyles({
         position: 'relative',
         width: 'fit-content',
         display: 'flex',
-        borderTop: '1px solid',
+        // borderTop: '1px solid',
     },
     cellContainer: {
         flexShrink: 0,
@@ -52,7 +52,7 @@ export interface Overlay {
 export interface BaseProps<T> {
     cells : T[][]
     cellOverlays ?: Overlay[][]
-    renderOverlay ?: (overlay : Overlay) => JSX.Element
+    renderOverlay ?: (data : any) => JSX.Element
 
     renderCell : (cellData : T) => JSX.Element | null
     cellContentHeightPx : number
@@ -138,7 +138,7 @@ export class MatrixContent<T> extends React.Component<Props<T>> {
             >
                 {
                     this.props.renderOverlay &&
-                    this.props.renderOverlay(overlay)
+                    this.props.renderOverlay(overlay.data)
                 }
             </div>
         )

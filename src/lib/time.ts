@@ -46,10 +46,14 @@ export function getEndTimeOptions(start : Time) : Time[] {
             return [ ...acc, { hour, min: 0 }]
         }
 
+        if (hour === start.hour && start.min === 45) {
+            return acc
+        }
+
         if (hour === start.hour) {
             return [
                 ...acc,
-                ...range(start.min, 60 - INCREMENT_MINS, INCREMENT_MINS).map(min => ({ hour, min })),
+                ...range(start.min + INCREMENT_MINS, 60 - INCREMENT_MINS, INCREMENT_MINS).map(min => ({ hour, min })),
             ]
         }
 
