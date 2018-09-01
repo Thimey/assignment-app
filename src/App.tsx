@@ -1,18 +1,20 @@
 import * as React from 'react'
+import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 
 import CostMatrix from './views/CostMatrix'
 import ScheduleMatrix from './views/ScheduleMatrix'
+import AllocateSchedule from './views/AllocateSchedule'
 
 import {
     getWorkers,
     getTasks,
     getSchedules,
-    Worker,
 } from './data'
 
 import taskStore from './stores/taskStore'
 import scheduleStore from './stores/scheduleStore'
+import workerStore from './stores/workerStore'
 
 export enum Display {
     costMatrix = 'costMatrix',
@@ -22,22 +24,30 @@ export enum Display {
 const styles = createStyles({
     container: {
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        margin: '8px',
         height: '100vh',
+        width: '100%',
+    },
+    header: {
+        height: '50px',
+    },
+    matrixContainer: {
+        height: 'calc(100% - 50px)',
         width: '100%',
     }
 })
 
 export interface State {
     display : Display
-    workers : Worker[],
 }
 
+@observer
 class App extends React.Component<WithStyles<typeof styles>, State> {
     state : State = {
         display: Display.schedule,
-        workers: [],
     }
 
     componentDidMount() {
@@ -46,27 +56,35 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
         this.getSchedules()
     }
 
-    private getWorkers = async () => this.setState({ workers: await getWorkers() })
+    private getWorkers = async () => workerStore.addWorkers(await getWorkers())
     private getTasks = async () => taskStore.addTasks(await getTasks())
     private getSchedules = async () => scheduleStore.addSchedules(await getSchedules())
 
     public render() {
         const { display } = this.state
+        const { classes } = this.props
+
         return (
-            <div className={this.props.classes.container}>
+            <div className={classes.container}>
 
-                {
-                    display === Display.costMatrix &&
-                    <CostMatrix
-                        workers={this.state.workers}
-                        tasks={taskStore.tasks as any}
-                    />
-                }
+                <div className={classes.header}>
+                    {
+                        scheduleStore.selectedSchedule &&
+                        <AllocateSchedule />
+                    }
+                </div>
 
-                {
-                    display === Display.schedule &&
-                    <ScheduleMatrix />
-                }
+                <div className={classes.matrixContainer}>
+                    {
+                        display === Display.costMatrix &&
+                        <CostMatrix />
+                    }
+
+                    {
+                        display === Display.schedule &&
+                        <ScheduleMatrix />
+                    }
+                </div>
             </div>
         )
     }

@@ -1,35 +1,36 @@
 import * as React from 'react'
+import { observer } from 'mobx-react'
+import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+
 import Matrix from '../components/Matrix'
 
 import getCost from '../lib/getCost'
 import { Worker, Task } from '../data'
+
 import {
     COST_MATRIX_CELL_WIDTH_PX,
     COST_MATRIX_HEADER_CELL_HEIGHT_PX,
     COST_MATRIX_CONTENT_CELL_HEIGHT_PX,
 } from '../config'
 
-import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+import workerStore from '../stores/workerStore'
+import taskStore from '../stores/taskStore'
 
 const styles = createStyles({
     container: {
-        height: '80%',
-        width: '80%',
+        height: '100%',
+        width: '100%',
     }
 })
 
-export interface Props extends WithStyles<typeof styles> {
-    workers : Worker[]
-    tasks : Task[]
-}
+export interface Props extends WithStyles<typeof styles> {}
 
+@observer
 class CostMatrix extends React.Component<Props> {
     private get cells() {
-        const { workers, tasks } = this.props
-
-        return workers.reduce((acc, worker) => ([
+        return workerStore.workers.reduce((acc, worker) => ([
             ...acc,
-            tasks.reduce((acc, task) => ([
+            taskStore.tasks.reduce((acc, task) => ([
                 ...acc,
                 getCost(worker, task)
             ]), [])
@@ -41,14 +42,13 @@ class CostMatrix extends React.Component<Props> {
     private renderWorker = (worker : Worker) => <div>{worker.name}</div>
 
     public render() {
-        const { workers, tasks } = this.props
 
         return (
             <div className={this.props.classes.container}>
                 <Matrix
                     cells={this.cells}
-                    colHeaders={tasks}
-                    rowHeaders={workers}
+                    colHeaders={taskStore.tasks as Task[]}
+                    rowHeaders={workerStore.workers as Worker[]}
                     renderCell={this.renderCost}
                     renderColHeader={this.renderTask}
                     renderRowHeader={this.renderWorker}

@@ -30,8 +30,8 @@ const SIDE_BAR_WIDTH_PX = 200
 const styles = createStyles({
     container: {
         display: 'flex',
-        height: '80%',
-        width: '80%',
+        height: '100%',
+        width: '100%',
     },
     sideContainer: {
         display: 'flex',
