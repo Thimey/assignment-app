@@ -22,7 +22,9 @@ class WorkerStore {
         return values(this.workerMap) as Worker[]
     }
 
-
+    public getWorker = (id : number) => {
+        return this.workerMap.get(id)
+    }
 }
 
 

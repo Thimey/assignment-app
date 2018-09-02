@@ -82,7 +82,6 @@ class ScheduleMatrix extends React.Component<Props> {
             onDelete={deleteScheduledTask}
         />
 
-
     private renderCell = (cellData : TimeTask) => (
         <div
             onClick={this.handleCellClick(cellData)}

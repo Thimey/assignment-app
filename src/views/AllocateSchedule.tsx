@@ -9,7 +9,9 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 
 import { Worker } from '../data'
 import SelectWorkers from '../components/SelectWorkers'
+import scheduleStore from '../stores/scheduleStore'
 import workerStore from '../stores/workerStore'
+import allocate from '../actions/allocate'
 
 const styles = createStyles({
     container: {
@@ -59,6 +61,17 @@ export class AllocateSchedule extends React.Component<Props, State> {
         })
     }
 
+    private get canAllocate() {
+        return scheduleStore.selectedSchedule && this.state.selectedWorkerIds.length
+    }
+
+    private handleAllocate = async () => {
+        if (this.canAllocate) {
+            await allocate(scheduleStore.selectedSchedule!, this.state.selectedWorkerIds)
+        }
+        this.handleClose()
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -72,7 +85,7 @@ export class AllocateSchedule extends React.Component<Props, State> {
                     onClose={this.handleClose}
                 >
                     <DialogTitle>
-                        Role call
+                        Roll call
 
                         <Button onClick={this.handleSelectOrDeSelectAll}>
                             {
@@ -95,7 +108,11 @@ export class AllocateSchedule extends React.Component<Props, State> {
                         <Button onClick={this.handleClose}>
                             Cancel
                         </Button>
-                        <Button variant="raised" onClick={this.handleOpen}>
+                        <Button
+                            variant="raised"
+                            onClick={this.handleAllocate}
+                            disabled={!this.canAllocate}
+                        >
                             Allocate
                         </Button>
                     </DialogActions>

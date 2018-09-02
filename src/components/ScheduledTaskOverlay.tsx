@@ -1,10 +1,10 @@
 import * as React from 'react'
-
+import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 
-
-import { Task, Worker, ScheduledTask } from '../data'
+import allocationSolutionStore from '../stores/allocationSolutionStore'
+import { Task, ScheduledTask } from '../data'
 
 const styles = createStyles({
     container: {
@@ -17,13 +17,13 @@ export interface Props extends WithStyles<typeof styles> {
     task : Task
     scheduledTask : ScheduledTask
     onDelete ?: (scheduledTaskId : string) => void
-    allocated ?: Worker[]
 }
 
 export interface State {
     hovered : boolean
 }
 
+@observer
 class ScheduledTaskOverlay extends React.Component<Props, State> {
     state = { hovered : false }
 
@@ -39,7 +39,10 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
         const {
             classes,
             onDelete,
+            scheduledTask,
         } = this.props
+
+        const allocated = allocationSolutionStore.getAllocated(scheduledTask.id)
 
         return (
             <div
@@ -52,6 +55,12 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
                     <Button onClick={this.handleDelete} variant="flat">
                         Remove
                     </Button>
+                }
+
+                {
+                    allocated &&
+                    allocated
+                        .map(a => a ? <div>{a.name}</div> : null)
                 }
             </div>
         )

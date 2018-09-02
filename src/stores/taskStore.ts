@@ -22,6 +22,9 @@ class TaskStore {
         return values(this.taskMap)
     }
 
+    public getTask = (id : number) => {
+        return this.taskMap.get(id)
+    }
 
 }
 
