@@ -15,7 +15,8 @@ const SOLVER_URL = 'http://localhost:5000/solve'
 
 export async function solveAllocation(
     workers : Worker[],
-    scheduledTasks : ScheduledTaskForSolver[]
+    scheduledTasks : ScheduledTaskForSolver[],
+    costMatrix : Record<string, Record<string, number>>
 ) : Promise<SolverResponse | null> {
     const headers = {
         'Content-Type': 'application/json',
@@ -24,7 +25,11 @@ export async function solveAllocation(
     const resp = await fetch(SOLVER_URL, {
         headers,
         method: 'POST',
-        body: JSON.stringify({ workers, scheduledTasks }),
+        body: JSON.stringify({
+            workers,
+            scheduledTasks,
+            costMatrix,
+        }),
      })
 
     if (resp.status === 200) {

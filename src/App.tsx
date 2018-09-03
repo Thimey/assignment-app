@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+import Button from '@material-ui/core/Button'
 
 import CostMatrix from './views/CostMatrix'
 import ScheduleMatrix from './views/ScheduleMatrix'
@@ -33,6 +34,8 @@ const styles = createStyles({
     },
     header: {
         height: '50px',
+        display: 'flex',
+
     },
     matrixContainer: {
         height: 'calc(100% - 50px)',
@@ -60,6 +63,28 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
     private getTasks = async () => taskStore.addTasks(await getTasks())
     private getSchedules = async () => scheduleStore.addSchedules(await getSchedules())
 
+    private toggleDisplay = () => {
+        if (this.state.display === Display.schedule) {
+            this.setState({ display: Display.costMatrix })
+        } else {
+            this.setState({ display: Display.schedule })
+        }
+    }
+
+    private renderDisplayToggle() {
+        return (
+            <div>
+                <Button onClick={this.toggleDisplay}>
+                    {
+                        this.state.display === Display.schedule
+                            ? 'Cost matrix'
+                            : 'Schedule'
+                    }
+                </Button>
+            </div>
+        )
+    }
+
     public render() {
         const { display } = this.state
         const { classes } = this.props
@@ -68,6 +93,10 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
             <div className={classes.container}>
 
                 <div className={classes.header}>
+                    {
+                        this.renderDisplayToggle()
+                    }
+
                     {
                         scheduleStore.selectedSchedule &&
                         <AllocateSchedule />

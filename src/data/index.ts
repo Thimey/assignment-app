@@ -1,7 +1,15 @@
+export enum WorkerTags {
+    sales = 'sales',
+    engineer = 'engineer',
+    ux = 'ux',
+    cs = 'cs',
+    marketing = 'marketing',
+}
+
 export interface Worker {
     id : number
     name : string
-    type : 'engineer' | 'sales' | 'cs' | 'ux' | 'marketing' | 'CTO' | 'CEO'
+    tags : WorkerTags[]
 }
 
 export interface Task {
