@@ -16,6 +16,7 @@ import {
     SCHEDULE_CELL_WIDTH_PX,
     SCHEDULE_HEADER_CELL_HEIGHT_PX,
     SCHEDULE_CONTENT_CELL_HEIGHT_PX,
+    SIDE_BAR_WIDTH_PX,
 } from '../config'
 
 import scheduleStore, { TimeTask } from '../stores/scheduleStore'
@@ -24,8 +25,6 @@ import taskStore from '../stores/taskStore'
 import saveScheduleAction from '../actions/saveSchedule'
 import deleteScheduledTask from '../actions/deleteScheduledTask'
 import saveScheduleTask from '../actions/saveScheduleTask'
-
-const SIDE_BAR_WIDTH_PX = 200
 
 const styles = createStyles({
     container: {

@@ -1,3 +1,5 @@
+export type CostMatrix = Record<string, Record<string, number>>
+
 export enum WorkerTags {
     sales = 'sales',
     engineer = 'engineer',

@@ -1,4 +1,4 @@
-import { Worker, Task, ScheduledTask } from '../data'
+import { Worker, Task, ScheduledTask, CostMatrix } from '../data'
 
 export interface ScheduledTaskForSolver extends Pick<ScheduledTask, 'id' | 'startTime' | 'endTime'> {
     task : Task
@@ -16,7 +16,7 @@ const SOLVER_URL = 'http://localhost:5000/solve'
 export async function solveAllocation(
     workers : Worker[],
     scheduledTasks : ScheduledTaskForSolver[],
-    costMatrix : Record<string, Record<string, number>>
+    costMatrix : CostMatrix
 ) : Promise<SolverResponse | null> {
     const headers = {
         'Content-Type': 'application/json',

@@ -1,26 +1,40 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+import Button from '@material-ui/core/Button'
 
 import Matrix from '../components/Matrix'
 
-import getCost from '../lib/getCost'
 import { Worker, Task } from '../data'
 
 import {
     COST_MATRIX_CELL_WIDTH_PX,
     COST_MATRIX_HEADER_CELL_HEIGHT_PX,
     COST_MATRIX_CONTENT_CELL_HEIGHT_PX,
+    SIDE_BAR_WIDTH_PX,
 } from '../config'
 
 import workerStore from '../stores/workerStore'
 import taskStore from '../stores/taskStore'
+import costStore from '../stores/costStore'
+
+import CostCell from '../components/CostCell'
 
 const styles = createStyles({
     container: {
+        display: 'flex',
         height: '100%',
         width: '100%',
-    }
+    },
+    sideContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: SIDE_BAR_WIDTH_PX,
+        paddingRight: 10,
+    },
+    matrixContainer: {
+        width: `calc(100% - ${SIDE_BAR_WIDTH_PX}px)`,
+    },
 })
 
 export interface Props extends WithStyles<typeof styles> {}
@@ -32,30 +46,51 @@ class CostMatrix extends React.Component<Props> {
             ...acc,
             taskStore.tasks.reduce((acc, task) => ([
                 ...acc,
-                getCost(worker, task)
+                { worker, task }
             ]), [])
         ]), [])
     }
 
-    private renderCost = (cost : number) => <div>{cost}</div>
+
     private renderTask = (task : Task) => <div>{task.name}</div>
     private renderWorker = (worker : Worker) => <div>{worker.name}</div>
 
+    private renderCost = ({ worker, task } : { worker : Worker, task : Task}) =>
+        <CostCell
+            worker={worker}
+            task={task}
+        />
+
+    private restoreDefault = () => {
+        costStore.restoreDefault()
+    }
+
     public render() {
+        const { classes } = this.props
+
 
         return (
-            <div className={this.props.classes.container}>
-                <Matrix
-                    cells={this.cells}
-                    colHeaders={taskStore.tasks as Task[]}
-                    rowHeaders={workerStore.workers as Worker[]}
-                    renderCell={this.renderCost}
-                    renderColHeader={this.renderTask}
-                    renderRowHeader={this.renderWorker}
-                    cellWidthPx={COST_MATRIX_CELL_WIDTH_PX}
-                    cellHeaderHeightPx={COST_MATRIX_HEADER_CELL_HEIGHT_PX}
-                    cellContentHeightPx={COST_MATRIX_CONTENT_CELL_HEIGHT_PX}
-                />
+            <div className={classes.container}>
+
+                <div className={classes.sideContainer}>
+                    <Button variant="raised" onClick={this.restoreDefault}>
+                        Restore defaults
+                    </Button>
+                </div>
+
+                <div className={classes.matrixContainer}>
+                    <Matrix
+                        cells={this.cells}
+                        colHeaders={taskStore.tasks as Task[]}
+                        rowHeaders={workerStore.workers as Worker[]}
+                        renderCell={this.renderCost}
+                        renderColHeader={this.renderTask}
+                        renderRowHeader={this.renderWorker}
+                        cellWidthPx={COST_MATRIX_CELL_WIDTH_PX}
+                        cellHeaderHeightPx={COST_MATRIX_HEADER_CELL_HEIGHT_PX}
+                        cellContentHeightPx={COST_MATRIX_CONTENT_CELL_HEIGHT_PX}
+                    />
+                </div>
             </div>
         )
     }

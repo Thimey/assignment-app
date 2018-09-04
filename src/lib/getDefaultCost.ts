@@ -14,7 +14,7 @@ function costFifa(worker : Worker) {
     return 10
 }
 
-function getCost(worker : Worker, task : Task) {
+function getDefaultCost(worker : Worker, task : Task) {
     if (task.id === 3) {
         return costDemo(worker)
     }
@@ -30,4 +30,4 @@ function getCost(worker : Worker, task : Task) {
     return 10
 }
 
-export default getCost
+export default getDefaultCost

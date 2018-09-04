@@ -7,9 +7,8 @@ import { Schedule, Task, Worker } from '../data'
 import taskStore from '../stores/taskStore'
 import workerStore from '../stores/workerStore'
 import scheduleStore from '../stores/scheduleStore'
+import costStore from '../stores/costStore'
 import allocationSolutionStore from '../stores/allocationSolutionStore'
-
-import getCost from '../lib/getCost'
 
 export default action('allocate', async (schedule : Schedule, selectedWorkerIds : number[]) => {
 
@@ -25,13 +24,7 @@ export default action('allocate', async (schedule : Schedule, selectedWorkerIds 
     const workers = selectedWorkerIds.map(workerStore.getWorker) as Worker[]
 
     // Get cost matrix
-    const costMatrix = workers.reduce((acc, worker) => ({
-        ...acc,
-        [worker.id]: scheduledTasks.reduce((acc, schTask) => ({
-            ...acc,
-            [schTask.id]: getCost(worker, schTask.task),
-        }), {})
-    }), {})
+    const costMatrix = costStore.getMatrix()
 
     const resp = await solveAllocation(workers, scheduledTasks, costMatrix)
 
