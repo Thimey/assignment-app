@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button'
 
 import Matrix from '../components/Matrix'
 
-import { Worker, Task } from '../data'
+import { Worker, Task, SavedCostMatrix } from '../data'
 
 import {
     COST_MATRIX_CELL_WIDTH_PX,
@@ -19,6 +19,11 @@ import taskStore from '../stores/taskStore'
 import costStore from '../stores/costStore'
 
 import CostCell from '../components/CostCell'
+import NewButton from '../components/NewButton'
+import CostMatrixList from '../components/CostMatrixList'
+
+import saveCostMatrix from '../actions/saveCostMatrix'
+import updateCurrentCostMatrix from '../actions/updateCurrentCostMatrix'
 
 const styles = createStyles({
     container: {
@@ -62,7 +67,23 @@ class CostMatrix extends React.Component<Props> {
         />
 
     private restoreDefault = () => {
+        // Restore the current costMatrix
         costStore.restoreDefault()
+
+        updateCurrentCostMatrix()
+    }
+
+    private saveCostMatrix = (nameObj : { name : string }) => {
+        saveCostMatrix({
+            ...nameObj,
+            costMatrix: {
+                ...costStore.currentCostMatrix
+            },
+        })
+    }
+
+    private handleCostMatrixListClick = (savedCostMatrixId : SavedCostMatrix['id']) => {
+        costStore.loadCostMatrix(savedCostMatrixId)
     }
 
     public render() {
@@ -73,9 +94,20 @@ class CostMatrix extends React.Component<Props> {
             <div className={classes.container}>
 
                 <div className={classes.sideContainer}>
-                    <Button variant="raised" onClick={this.restoreDefault}>
+                    <NewButton
+                        title="Save costs"
+                        onSave={this.saveCostMatrix}
+                    />
+
+                    <Button variant="flat" onClick={this.restoreDefault}>
                         Restore defaults
                     </Button>
+
+                    <CostMatrixList
+                        selectedScheduleId={costStore.selectedCostMatrixId}
+                        costMatrices={costStore.savedMatrices}
+                        onCostMatrixClick={this.handleCostMatrixListClick}
+                    />
                 </div>
 
                 <div className={classes.matrixContainer}>

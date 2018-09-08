@@ -8,8 +8,6 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 
-import { Schedule } from '../data'
-
 const styles = createStyles({
     container: {
     }
@@ -17,7 +15,8 @@ const styles = createStyles({
 
 
 export interface Props extends WithStyles<typeof styles> {
-    onSave : (schedule : Partial<Schedule>) => void
+    onSave : (nameObj : { name : string }) => void
+    title : string
 }
 
 export interface State {
@@ -25,13 +24,12 @@ export interface State {
     open : boolean
 }
 
-class NewSchedule extends React.Component<Props, State> {
+class NewButton extends React.Component<Props, State> {
     state = { open: false, name: '' }
 
     private handleSave = () => {
         this.props.onSave({
             name: this.state.name,
-            tasks: [],
         })
         this.handleClose()
     }
@@ -44,12 +42,13 @@ class NewSchedule extends React.Component<Props, State> {
     render () {
         const {
             classes,
+            title,
         } = this.props
 
         return (
             <React.Fragment>
                 <Button variant="raised" onClick={this.handleOpen}>
-                    New Schedule
+                    {title}
                 </Button>
 
                 <Dialog
@@ -80,4 +79,4 @@ class NewSchedule extends React.Component<Props, State> {
     }
 }
 
-export default withStyles(styles)(NewSchedule)
+export default withStyles(styles)(NewButton)

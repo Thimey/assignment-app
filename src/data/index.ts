@@ -1,5 +1,11 @@
 export type CostMatrix = Record<string, Record<string, number>>
 
+export interface SavedCostMatrix {
+    id : number
+    name : string
+    costMatrix : CostMatrix
+}
+
 export enum WorkerTags {
     sales = 'sales',
     engineer = 'engineer',
@@ -54,7 +60,7 @@ const fetchData = (path : string, method : string) => async (payload ?: any) => 
 
     const resp = await fetch(getUrl(path), { ...options, headers })
 
-    if (resp.status === 200) {
+    if (resp.status === 200 || resp.status === 201) {
         return resp.json()
     }
 }
@@ -64,4 +70,7 @@ export const getTasks = fetchData('/tasks', 'GET')
 export const getSchedules = fetchData('/schedules', 'GET')
 export const saveSchedule = fetchData('/schedules', 'POST')
 export const updateSchedule = (id : number) => fetchData(`/schedules/${id}`, 'PUT')
+export const saveCostMatrix = fetchData('/costMatrix', 'POST')
+export const getCostMatrix = fetchData('/costMatrix', 'GET')
+export const updateCostMatrix = (id : number) => fetchData(`/costMatrix/${id}`, 'PUT')
 

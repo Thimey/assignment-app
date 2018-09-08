@@ -11,11 +11,13 @@ import {
     getWorkers,
     getTasks,
     getSchedules,
+    getCostMatrix,
 } from './data'
 
 import taskStore from './stores/taskStore'
 import scheduleStore from './stores/scheduleStore'
 import workerStore from './stores/workerStore'
+import costStore from './stores/costStore'
 
 export enum Display {
     costMatrix = 'costMatrix',
@@ -57,11 +59,13 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
         this.getTasks()
         this.getWorkers()
         this.getSchedules()
+        this.getCostMatrix()
     }
 
     private getWorkers = async () => workerStore.addWorkers(await getWorkers())
     private getTasks = async () => taskStore.addTasks(await getTasks())
     private getSchedules = async () => scheduleStore.addSchedules(await getSchedules())
+    private getCostMatrix = async () => costStore.addCostMatrices(await getCostMatrix())
 
     private toggleDisplay = () => {
         if (this.state.display === Display.schedule) {

@@ -1,9 +1,12 @@
-import { observable, action, ObservableMap, when, values } from 'mobx'
+import { observable, action, ObservableMap, when, values, keys, computed } from 'mobx'
 
-import { CostMatrix, Worker, Task, ScheduledTask } from '../data'
+import { Worker, Task, SavedCostMatrix } from '../data'
 import workerStore from '../stores/workerStore'
 import taskStore from '../stores/taskStore'
+
 import getDefaultCost from '../lib/getDefaultCost'
+
+import { ScheduledTaskForSolver } from '../solver'
 
 class CostStore {
     constructor() {
@@ -11,6 +14,44 @@ class CostStore {
             () => workerStore.workers.length > 0 && taskStore.tasks.length > 0,
             () => this.initialiseMatrix()
         )
+    }
+
+    private costMap : ObservableMap<string, number> = observable.map()
+
+    @observable
+    public selectedCostMatrixId : number | null = null
+    private savedMatricesMap : ObservableMap<number, SavedCostMatrix> = observable.map()
+
+    public getSavedMatrix(id : number) {
+        return this.savedMatricesMap.get(id)
+    }
+
+    @computed
+    public get savedMatrices() {
+        return values(this.savedMatricesMap)
+    }
+
+    @action.bound
+    public addCostMatrices(savedCostMatrix : SavedCostMatrix[]) {
+        savedCostMatrix.forEach(mat =>
+            this.savedMatricesMap.set(mat.id, mat)
+        )
+    }
+
+    @computed
+    public get currentCostMatrix() {
+        const matrix = {}
+        this.costMap.forEach((cost, key) => {
+            const { workerId, taskId } = this.getIdsFromKey(key)
+
+            if (matrix[workerId]) {
+                matrix[workerId][taskId] = cost
+            } else {
+                matrix[workerId] = { [taskId]: cost }
+            }
+        })
+
+        return matrix
     }
 
     private initialiseMatrix() {
@@ -25,8 +66,6 @@ class CostStore {
             })
         }
     }
-
-    private costMap : ObservableMap<string, number> = observable.map()
 
     private getCostMapKey(workerId : string | number, taskId : string | number) {
         return `${workerId}-${taskId}`
@@ -46,15 +85,20 @@ class CostStore {
     }
 
     @action.bound
-    public loadCostMatrix(costMatrix : CostMatrix) {
-        Object.keys(costMatrix).forEach(workerId =>
-            Object.keys(costMatrix[workerId]).forEach(schTaskId =>
-                this.costMap.set(
-                    this.getCostMapKey(workerId, schTaskId),
-                    costMatrix[workerId][schTaskId]
+    public loadCostMatrix(id : number) {
+        const costMatrixToLoad = this.savedMatricesMap.get(id)
+
+        if (costMatrixToLoad) {
+            keys(costMatrixToLoad.costMatrix).forEach(workerId =>
+                keys(costMatrixToLoad.costMatrix[workerId]).forEach(schTaskId =>
+                    this.costMap.set(
+                        this.getCostMapKey(workerId, schTaskId),
+                        costMatrixToLoad.costMatrix[workerId][schTaskId]
+                    )
                 )
             )
-        )
+            this.selectedCostMatrixId = costMatrixToLoad.id
+        }
     }
 
     @action.bound
@@ -84,20 +128,14 @@ class CostStore {
         })
     }
 
-    public getMatrix(scheduledTasks : ScheduledTask[]) {
-        const matrix = {}
-        this.costMap.forEach((cost, key) => {
-            const { workerId, taskId } = this.getIdsFromKey(key)
-
-            if (matrix[workerId]) {
-                matrix[taskId] = cost
-            } else {
-                matrix[workerId] = { [taskId]: cost }
-            }
-
-        })
-
-        return matrix
+    public getMatrixForAllocating(scheduledTasks : ScheduledTaskForSolver[]) {
+        return workerStore.workers.reduce((acc, worker) => ({
+            ...acc,
+            [worker.id]: scheduledTasks.reduce((acc, schTask) => ({
+                ...acc,
+                [schTask.id]: this.getCost(worker, schTask.task)
+            }), {})
+        }), {})
     }
 }
 

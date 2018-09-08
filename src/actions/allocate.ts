@@ -10,6 +10,7 @@ import scheduleStore from '../stores/scheduleStore'
 import costStore from '../stores/costStore'
 import allocationSolutionStore from '../stores/allocationSolutionStore'
 
+
 export default action('allocate', async (schedule : Schedule, selectedWorkerIds : number[]) => {
 
     // Populate scheduledTasks with task values
@@ -24,7 +25,7 @@ export default action('allocate', async (schedule : Schedule, selectedWorkerIds 
     const workers = selectedWorkerIds.map(workerStore.getWorker) as Worker[]
 
     // Get cost matrix
-    const costMatrix = costStore.getMatrix()
+    const costMatrix = costStore.getMatrixForAllocating(scheduledTasks)
 
     const resp = await solveAllocation(workers, scheduledTasks, costMatrix)
 

@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 
 import { getTimes, renderTime } from '../lib/time'
 import { Task, Schedule, Time, ScheduledTask } from '../data'
-import NewSchedule from '../components/NewSchedule'
+import NewButton from '../components/NewButton'
 import ScheduleList from '../components/ScheduleList'
 import ScheduledTaskOverLay from '../components/ScheduledTaskOverlay'
 import TaskScheduleDialog from '../components/TaskScheduleDialog'
@@ -120,7 +120,8 @@ class ScheduleMatrix extends React.Component<Props> {
                 <div className={classes.container}>
 
                     <div className={classes.sideContainer}>
-                        <NewSchedule
+                        <NewButton
+                            title="New Schedule"
                             onSave={saveScheduleAction}
                         />
 

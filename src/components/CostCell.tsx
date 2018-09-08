@@ -6,6 +6,7 @@ import TextField from '@material-ui/core/TextField'
 
 import { Worker, Task } from '../data'
 import costStore from '../stores/costStore'
+import updateCurrentCostMatrix from '../actions/updateCurrentCostMatrix'
 
 const styles = createStyles({
     container: {
@@ -45,7 +46,10 @@ class CostCell extends React.Component<Props, State> {
     }
 
     private handleOpen = () => this.setState({ open: true })
-    private handleClose = () => this.setState({ open: false })
+    private handleClose = () => {
+        this.setState({ open: false })
+        updateCurrentCostMatrix()
+    }
 
     private handleCostChange = (e : any) => {
         costStore.updateCostMatrix(
