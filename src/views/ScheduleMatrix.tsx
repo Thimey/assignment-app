@@ -11,6 +11,8 @@ import NewButton from '../components/NewButton'
 import ScheduleList from '../components/ScheduleList'
 import ScheduledTaskOverLay from '../components/ScheduledTaskOverlay'
 import TaskScheduleDialog from '../components/TaskScheduleDialog'
+import ScheduleTaskHeader from '../components/ScheduledTaskHeader'
+import HeaderCell from '../components/HeaderCell'
 
 import {
     SCHEDULE_CELL_WIDTH_PX,
@@ -39,6 +41,9 @@ const styles = createStyles({
         paddingRight: 10,
     },
     matrixContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         width: `calc(100% - ${SIDE_BAR_WIDTH_PX}px)`,
     },
     cellContainer: {
@@ -48,7 +53,7 @@ const styles = createStyles({
         '&:hover': {
             backgroundColor: '#d4eff7',
         },
-    }
+    },
 })
 
 export interface Props extends WithStyles<typeof styles> {}
@@ -71,14 +76,16 @@ class ScheduleMatrix extends React.Component<Props> {
     private handleCellClick = (timeTask : TimeTask) => () =>
         scheduleStore.setSelectedTimeTask(timeTask)
 
-        private renderTask = (task : Task) => <div>{task.name}</div>
-        private renderTime = (time : Time) => <div>{renderTime(time)}</div>
+    private renderTask = (task : Task) => <ScheduleTaskHeader task={task} />
 
-    private renderOverlay = ({ task, scheduledTask } : { task : Task, scheduledTask : ScheduledTask }) =>
+    private renderTime = (time : Time) => <HeaderCell text={renderTime(time)} />
+
+    private renderOverlay = ({ task, scheduledTask } : { task : Task, scheduledTask : ScheduledTask }, width : number) =>
         <ScheduledTaskOverLay
             task={task}
             scheduledTask={scheduledTask}
             onDelete={deleteScheduledTask}
+            width={width}
         />
 
     private renderCell = (cellData : TimeTask) => (
@@ -93,7 +100,7 @@ class ScheduleMatrix extends React.Component<Props> {
     private renderNullSchedule() {
         return (
             <Typography variant="display1">
-                Select/create Schedule to start!
+                Select/create schedule to start!
             </Typography>
         )
     }

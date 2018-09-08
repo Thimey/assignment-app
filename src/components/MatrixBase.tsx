@@ -51,7 +51,7 @@ export interface Overlay {
 export interface BaseProps<T> {
     cells : T[][]
     cellOverlays ?: Overlay[][]
-    renderOverlay ?: (data : any) => JSX.Element
+    renderOverlay ?: (data : any, width : number) => JSX.Element
 
     renderCell : (cellData : T) => JSX.Element | null
     cellContentHeightPx : number
@@ -137,7 +137,7 @@ export class MatrixContent<T> extends React.Component<Props<T>> {
             >
                 {
                     this.props.renderOverlay &&
-                    this.props.renderOverlay(overlay.data)
+                    this.props.renderOverlay(overlay.data, overlay.widthPx)
                 }
             </div>
         )

@@ -1,11 +1,15 @@
 import * as React from 'react'
+// import { computed } from 'mobx'
 import { observer } from 'mobx-react'
+import { differenceWith, any, uniq } from 'ramda'
+
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
+import TextField from '@material-ui/core/TextField'
 
 import { Worker } from '../data'
 import SelectWorkers from '../components/SelectWorkers'
@@ -24,12 +28,31 @@ export interface Props extends WithStyles<typeof styles> {}
 
 export interface State {
     open : boolean
+    filter : string
     selectedWorkerIds : number[]
 }
 
 @observer
 export class AllocateSchedule extends React.Component<Props, State> {
-    state : State = { selectedWorkerIds: [], open: false }
+    state : State = {
+        selectedWorkerIds: [],
+        open: false,
+        filter: '',
+    }
+
+    private handleFilterChange = (e : any) => {
+        this.setState({
+            filter: e.target.value,
+        })
+    }
+
+    private get filteredWorkers() {
+        return workerStore.workers
+            .filter(worker =>
+                worker.name.includes(this.state.filter) ||
+                any(tag => tag.includes(this.state.filter), worker.tags)
+            )
+    }
 
     private handleOpen = () => this.setState({ open: true })
     private handleClose = () => this.setState({
@@ -38,13 +61,23 @@ export class AllocateSchedule extends React.Component<Props, State> {
     })
 
     private get allSelected() {
-        return this.state.selectedWorkerIds.length === workerStore.workers.length
+        return !differenceWith(
+            ({id}, id2) => id === id2,
+            this.filteredWorkers,
+            this.state.selectedWorkerIds
+        ).length
     }
 
     private handleSelectOrDeSelectAll = () => {
         const newSelectedWorkerIds = this.allSelected
-            ? []
-            : workerStore.workers.map(({ id }) => id)
+            ? this.state.selectedWorkerIds.filter(id => !this.filteredWorkers.find(w => w.id === id))
+            : uniq([
+                ...this.state.selectedWorkerIds,
+                ...this.filteredWorkers.map(({ id }) => id),
+            ])
+
+        console.log('this.filteredWorkers', this.filteredWorkers)
+        console.log(newSelectedWorkerIds)
 
         this.setState({
             selectedWorkerIds: newSelectedWorkerIds
@@ -97,9 +130,13 @@ export class AllocateSchedule extends React.Component<Props, State> {
                     </DialogTitle>
 
                     <DialogContent>
+                        <TextField
+                            value={this.state.filter}
+                            onChange={this.handleFilterChange}
+                        />
                         <SelectWorkers
                             selectedWorkerIds={this.state.selectedWorkerIds}
-                            workers={workerStore.workers}
+                            workers={this.filteredWorkers}
                             onSelect={this.handleWorkerSelectedOrDeselected}
                         />
                     </DialogContent>

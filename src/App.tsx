@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
-import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+import { createStyles, withStyles, WithStyles, Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 
 import CostMatrix from './views/CostMatrix'
@@ -35,9 +35,16 @@ const styles = createStyles({
         width: '100%',
     },
     header: {
-        height: '50px',
+        height: '60px',
         display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
 
+    },
+    subHeader: {
+        display: 'flex',
+        alignItems: 'center',
     },
     matrixContainer: {
         height: 'calc(100% - 50px)',
@@ -77,15 +84,13 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
 
     private renderDisplayToggle() {
         return (
-            <div>
-                <Button onClick={this.toggleDisplay}>
-                    {
-                        this.state.display === Display.schedule
-                            ? 'Cost matrix'
-                            : 'Schedule'
-                    }
-                </Button>
-            </div>
+            <Button onClick={this.toggleDisplay}>
+                {
+                    this.state.display === Display.schedule
+                        ? 'Cost matrix'
+                        : 'Schedule'
+                }
+            </Button>
         )
     }
 
@@ -97,14 +102,20 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
             <div className={classes.container}>
 
                 <div className={classes.header}>
-                    {
-                        this.renderDisplayToggle()
-                    }
+                    <Typography variant="display1">
+                        Task Assignar
+                    </Typography>
 
-                    {
-                        scheduleStore.selectedSchedule &&
-                        <AllocateSchedule />
-                    }
+                    <div className={classes.subHeader}>
+                        {
+                            this.renderDisplayToggle()
+                        }
+
+                        {
+                            scheduleStore.selectedSchedule &&
+                            <AllocateSchedule />
+                        }
+                    </div>
                 </div>
 
                 <div className={classes.matrixContainer}>

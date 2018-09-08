@@ -1,10 +1,12 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
+import classnames from 'classnames'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 
+import WorkerAvatar from './WorkerAvatar'
 import allocationSolutionStore from '../stores/allocationSolutionStore'
-import { Task, ScheduledTask } from '../data'
+import { Task, ScheduledTask, Worker } from '../data'
 
 const styles = createStyles({
     container: {
@@ -14,10 +16,23 @@ const styles = createStyles({
         alignItems: 'center',
     },
     innerContainer: {
-        height: '80%',
+        height: '95%',
         width: '100%',
-        backgroundColor: 'blue',
         borderRadius: '5px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+    },
+    notAllocated: {
+        backgroundColor: 'blue',
+    },
+    allocated: {
+        backgroundColor: 'darkseagreen',
+    },
+    avatar: {
+        width: 45,
+        height: 45,
     }
 })
 
@@ -25,6 +40,7 @@ export interface Props extends WithStyles<typeof styles> {
     task : Task
     scheduledTask : ScheduledTask
     onDelete ?: (scheduledTaskId : string) => void
+    width : number
 }
 
 export interface State {
@@ -43,6 +59,20 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
         }
     }
 
+    private renderAllocation = (worker : Worker | undefined) => {
+        if (!worker) {
+            return null
+        }
+
+        return (
+            <WorkerAvatar
+                key={worker.id}
+                className={this.props.classes.avatar}
+                worker={worker}
+            />
+        )
+    }
+
     render () {
         const {
             classes,
@@ -58,9 +88,12 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
                 onMouseLeave={this.handleMouseLeave}
                 className={classes.container}
             >
-                <div className={classes.innerContainer}>
+                <div className={classnames(classes.innerContainer, {
+                    [classes.notAllocated]: !allocated,
+                    [classes.allocated]: allocated,
+                })}>
                     {
-                        (onDelete && this.state.hovered) &&
+                        (onDelete && this.state.hovered && !allocated) &&
                         <Button onClick={this.handleDelete} variant="flat">
                             Remove
                         </Button>
@@ -68,8 +101,7 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
 
                     {
                         allocated &&
-                        allocated
-                            .map(a => a ? <div>{a.name}</div> : null)
+                        allocated.map(this.renderAllocation)
                     }
                 </div>
             </div>
