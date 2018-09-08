@@ -21,6 +21,7 @@ import costStore from '../stores/costStore'
 import CostCell from '../components/CostCell'
 import NewButton from '../components/NewButton'
 import CostMatrixList from '../components/CostMatrixList'
+import WorkerCostCard from '../components/WorkerCostCard'
 
 import saveCostMatrix from '../actions/saveCostMatrix'
 import updateCurrentCostMatrix from '../actions/updateCurrentCostMatrix'
@@ -58,7 +59,7 @@ class CostMatrix extends React.Component<Props> {
 
 
     private renderTask = (task : Task) => <div>{task.name}</div>
-    private renderWorker = (worker : Worker) => <div>{worker.name}</div>
+    private renderWorker = (worker : Worker) => <WorkerCostCard worker={worker} />
 
     private renderCost = ({ worker, task } : { worker : Worker, task : Task}) =>
         <CostCell

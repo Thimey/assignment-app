@@ -39,7 +39,6 @@ export const styles = createStyles({
         top: 0,
         height: '100%',
         position: 'absolute',
-        backgroundColor: 'red',
     }
 })
 

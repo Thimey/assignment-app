@@ -10,6 +10,14 @@ const styles = createStyles({
     container: {
         width: '100%',
         height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+    },
+    innerContainer: {
+        height: '80%',
+        width: '100%',
+        backgroundColor: 'blue',
+        borderRadius: '5px',
     }
 })
 
@@ -50,18 +58,20 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
                 onMouseLeave={this.handleMouseLeave}
                 className={classes.container}
             >
-                {
-                    (onDelete && this.state.hovered) &&
-                    <Button onClick={this.handleDelete} variant="flat">
-                        Remove
-                    </Button>
-                }
+                <div className={classes.innerContainer}>
+                    {
+                        (onDelete && this.state.hovered) &&
+                        <Button onClick={this.handleDelete} variant="flat">
+                            Remove
+                        </Button>
+                    }
 
-                {
-                    allocated &&
-                    allocated
-                        .map(a => a ? <div>{a.name}</div> : null)
-                }
+                    {
+                        allocated &&
+                        allocated
+                            .map(a => a ? <div>{a.name}</div> : null)
+                    }
+                </div>
             </div>
         )
     }

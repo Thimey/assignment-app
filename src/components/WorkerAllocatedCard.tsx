@@ -3,6 +3,7 @@ import classnames from 'classnames'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 
 import { Worker } from '../data'
+import WorkerPic from './WorkerPic'
 
 const styles = createStyles({
     container: {
@@ -15,7 +16,14 @@ const styles = createStyles({
         cursor: 'pointer'
     },
     selected: {
-        backgroundColor: 'red',
+        opacity: 1,
+    },
+    notSelected: {
+        opacity: 0.2,
+    },
+    image: {
+        width: '100%',
+        height: '100%',
     }
 })
 
@@ -31,18 +39,21 @@ function WorkerAllocatedCard({
     selected,
     onClick
 } : Props) {
-    const { name } = worker
-
     const handleClick = () => onClick(worker)
 
     return (
         <div
             onClick={handleClick}
-            className={classnames(classes.container, {
-                [classes.selected]: !!selected,
-            })}
+            className={classes.container}
         >
-            { name }
+            <WorkerPic
+                className={classnames(classes.image, {
+                    [classes.selected]: !!selected,
+                    [classes.notSelected]: !selected,
+                })}
+                worker={worker}
+            />
+            {/* { name } */}
         </div>
     )
 }
