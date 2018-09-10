@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import classnames from 'classnames'
-import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 
 import WorkerAvatar from './WorkerAvatar'
 import allocationSolutionStore from '../stores/allocationSolutionStore'
 import { Task, ScheduledTask, Worker } from '../data'
 
-const styles = createStyles({
+const styles = (theme: Theme) => createStyles({
     container: {
         width: '100%',
         height: '100%',
@@ -25,10 +25,10 @@ const styles = createStyles({
         alignItems: 'center',
     },
     notAllocated: {
-        backgroundColor: 'blue',
+        backgroundColor: theme.palette.primary.light,
     },
     allocated: {
-        backgroundColor: 'darkseagreen',
+        backgroundColor: theme.palette.grey["100"],
     },
     avatar: {
         width: 45,

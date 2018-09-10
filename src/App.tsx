@@ -19,6 +19,8 @@ import scheduleStore from './stores/scheduleStore'
 import workerStore from './stores/workerStore'
 import costStore from './stores/costStore'
 
+import AllocationLoader from './components/AllocationLoader'
+
 export enum Display {
     costMatrix = 'costMatrix',
     schedule = 'schedule',
@@ -84,7 +86,7 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
 
     private renderDisplayToggle() {
         return (
-            <Button onClick={this.toggleDisplay}>
+            <Button color="primary" onClick={this.toggleDisplay}>
                 {
                     this.state.display === Display.schedule
                         ? 'Cost matrix'
@@ -129,6 +131,8 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                         <ScheduleMatrix />
                     }
                 </div>
+
+                <AllocationLoader />
             </div>
         )
     }

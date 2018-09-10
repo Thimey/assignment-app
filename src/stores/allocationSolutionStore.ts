@@ -1,14 +1,40 @@
 import { observable, action, ObservableMap } from 'mobx'
 
 import workerStore from './workerStore'
+import { Worker } from '../data'
 
 import { Solution } from '../solver'
+
+export enum SolveOption {
+    noOptimisation = 'noOptimisation',
+    optimise = 'optimise',
+    optimal = 'optimal',
+}
 
 class AllocationSolutionStore {
     private solutionMap : ObservableMap<string, number[]> = observable.map()
 
     @observable
     public solutionScheduleId : number | null = null
+
+    @observable
+    public solving : {
+        option : SolveOption
+        time : number | null
+    } | null = null
+
+    @observable
+    public allocatingWorkers : Worker[] = []
+
+    @action.bound
+    public setAllocatingWorkers(workers : Worker[]) {
+        this.allocatingWorkers = workers
+    }
+
+    @action.bound
+    public setSolvingSolution(option : SolveOption, time : number | null = null) {
+        this.solving = { option, time }
+    }
 
     @action.bound
     public setSolution(solution : Solution | null, selectedScheduleId : number) {

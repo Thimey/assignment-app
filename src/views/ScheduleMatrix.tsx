@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import Matrix from '../components/Matrix'
-import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
 import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
 
@@ -28,7 +28,7 @@ import saveScheduleAction from '../actions/saveSchedule'
 import deleteScheduledTask from '../actions/deleteScheduledTask'
 import saveScheduleTask from '../actions/saveScheduleTask'
 
-const styles = createStyles({
+const styles = (theme : Theme) => createStyles({
     container: {
         display: 'flex',
         height: '100%',
@@ -51,7 +51,7 @@ const styles = createStyles({
         width: '100%',
         cursor: 'pointer',
         '&:hover': {
-            backgroundColor: '#d4eff7',
+            backgroundColor: theme.palette.grey["100"],
         },
     },
 })

@@ -47,7 +47,7 @@ class NewButton extends React.Component<Props, State> {
 
         return (
             <React.Fragment>
-                <Button variant="raised" onClick={this.handleOpen}>
+                <Button color="primary" variant="raised" onClick={this.handleOpen}>
                     {title}
                 </Button>
 

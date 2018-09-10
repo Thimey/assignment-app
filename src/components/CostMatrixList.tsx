@@ -1,16 +1,16 @@
 import * as React from 'react'
 import classnames from 'classnames'
 
-import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 
 import { SavedCostMatrix } from '../data'
 
-const styles = createStyles({
+const styles = (theme : Theme) => createStyles({
     selected: {
-        backgroundColor: '#d4eff7'
+        backgroundColor: theme.palette.secondary.light,
     }
 })
 

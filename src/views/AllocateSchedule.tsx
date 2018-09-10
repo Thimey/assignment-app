@@ -10,19 +10,37 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
+import InputAdornment from '@material-ui/core/InputAdornment'
 
 import { Worker } from '../data'
 import SelectWorkers from '../components/SelectWorkers'
 import scheduleStore from '../stores/scheduleStore'
 import workerStore from '../stores/workerStore'
+import { SolveOption } from '../stores/allocationSolutionStore'
 import allocate from '../actions/allocate'
 
 const styles = createStyles({
     container: {
         height: '80%',
         width: '80%',
+    },
+    headerContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '8px',
+    },
+    actionsContainer: {
+        marginLeft: '8px',
+    },
+    filter: {
+        marginLeft: '8px',
     }
 })
+
+const DEFAULT_TIME_LIMIT_MINS = 3
 
 export interface Props extends WithStyles<typeof styles> {}
 
@@ -30,6 +48,8 @@ export interface State {
     open : boolean
     filter : string
     selectedWorkerIds : number[]
+    selectedSolution : SolveOption
+    timeLimit : number | null
 }
 
 @observer
@@ -38,6 +58,8 @@ export class AllocateSchedule extends React.Component<Props, State> {
         selectedWorkerIds: [],
         open: false,
         filter: '',
+        selectedSolution: SolveOption.noOptimisation,
+        timeLimit: null,
     }
 
     private handleFilterChange = (e : any) => {
@@ -76,9 +98,6 @@ export class AllocateSchedule extends React.Component<Props, State> {
                 ...this.filteredWorkers.map(({ id }) => id),
             ])
 
-        console.log('this.filteredWorkers', this.filteredWorkers)
-        console.log(newSelectedWorkerIds)
-
         this.setState({
             selectedWorkerIds: newSelectedWorkerIds
         })
@@ -98,17 +117,40 @@ export class AllocateSchedule extends React.Component<Props, State> {
         return scheduleStore.selectedSchedule && this.state.selectedWorkerIds.length
     }
 
-    private handleAllocate = async () => {
+    private handleAllocate = () => {
         if (this.canAllocate) {
-            await allocate(scheduleStore.selectedSchedule!, this.state.selectedWorkerIds)
+            this.handleClose()
+
+            allocate({
+                schedule: scheduleStore.selectedSchedule!,
+                selectedWorkerIds: this.state.selectedWorkerIds,
+                solverOption: this.state.selectedSolution,
+                time: this.state.timeLimit,
+            })
         }
-        this.handleClose()
+    }
+
+    private handleSolutionOptionSelect = (e : any) => {
+        this.setState({
+            selectedSolution: e.target.value,
+            timeLimit: e.target.value !== SolveOption.optimise
+                ? null
+                : DEFAULT_TIME_LIMIT_MINS
+        })
+    }
+
+    private handleTimeLimitChange = (e : any) => {
+        this.setState({
+            timeLimit: e.target.value,
+        })
     }
 
     render() {
+        const { classes } = this.props
+
         return (
             <React.Fragment>
-                <Button onClick={this.handleOpen}>
+                <Button color="secondary" onClick={this.handleOpen}>
                     Allocate
                 </Button>
 
@@ -117,23 +159,35 @@ export class AllocateSchedule extends React.Component<Props, State> {
                     open={this.state.open}
                     onClose={this.handleClose}
                 >
-                    <DialogTitle>
-                        Roll call
+                    <DialogTitle disableTypography>
+                        <div className={classes.headerContainer}>
+                            <Typography variant="title">
+                                Roll call
+                            </Typography>
 
-                        <Button onClick={this.handleSelectOrDeSelectAll}>
-                            {
-                                this.allSelected
-                                    ? 'DeSelect all'
-                                    : 'Select all'
-                            }
-                        </Button>
+                            <div className={classes.actionsContainer}>
+                                <Button
+                                    color="primary"
+                                    onClick={this.handleSelectOrDeSelectAll}
+                                >
+                                    {
+                                        this.allSelected
+                                            ? 'DeSelect all'
+                                            : 'Select all'
+                                    }
+                                </Button>
+                                <TextField
+                                    className={classes.filter}
+                                    value={this.state.filter}
+                                    onChange={this.handleFilterChange}
+                                    placeholder="search name or tags"
+                                />
+                            </div>
+                        </div>
+
                     </DialogTitle>
 
                     <DialogContent>
-                        <TextField
-                            value={this.state.filter}
-                            onChange={this.handleFilterChange}
-                        />
                         <SelectWorkers
                             selectedWorkerIds={this.state.selectedWorkerIds}
                             workers={this.filteredWorkers}
@@ -142,11 +196,36 @@ export class AllocateSchedule extends React.Component<Props, State> {
                     </DialogContent>
 
                     <DialogActions>
+                        <Select
+                            value={this.state.selectedSolution}
+                            onChange={this.handleSolutionOptionSelect}
+                        >
+                            <MenuItem value={SolveOption.noOptimisation}>No optimisation</MenuItem>
+                            <MenuItem value={SolveOption.optimise}>Giv me a lil optimisation</MenuItem>
+                            <MenuItem value={SolveOption.optimal}>Optimal!</MenuItem>
+                        </Select>
+
+                        {
+                            this.state.timeLimit &&
+                            <TextField
+                                type="number"
+                                inputProps={{
+                                    min: 1,
+                                }}
+                                onChange={this.handleTimeLimitChange}
+                                value={this.state.timeLimit}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">mins</InputAdornment>,
+                                }}
+                            />
+                        }
+
                         <Button onClick={this.handleClose}>
                             Cancel
                         </Button>
                         <Button
                             variant="raised"
+                            color="secondary"
                             onClick={this.handleAllocate}
                             disabled={!this.canAllocate}
                         >

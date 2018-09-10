@@ -101,7 +101,7 @@ class CostMatrix extends React.Component<Props> {
                         onSave={this.saveCostMatrix}
                     />
 
-                    <Button variant="flat" onClick={this.restoreDefault}>
+                    <Button color="secondary" variant="flat" onClick={this.restoreDefault}>
                         Restore defaults
                     </Button>
 
