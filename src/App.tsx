@@ -105,7 +105,7 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
 
                 <div className={classes.header}>
                     <Typography variant="display1">
-                        Task Assignar
+                        Task Assignment
                     </Typography>
 
                     <div className={classes.subHeader}>
