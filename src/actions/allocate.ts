@@ -1,12 +1,12 @@
 
 import { action } from 'mobx'
 
-// import { solveAllocation } from '../solver'
+import { solveAllocation } from '../solver'
 import { Schedule, Task, Worker } from '../data'
 
 import taskStore from '../stores/taskStore'
 import workerStore from '../stores/workerStore'
-// import scheduleStore from '../stores/scheduleStore'
+import scheduleStore from '../stores/scheduleStore'
 import costStore from '../stores/costStore'
 import allocationSolutionStore, { SolveOption } from '../stores/allocationSolutionStore'
 
@@ -22,6 +22,8 @@ export default action('allocate', async ({
     solverOption : SolveOption,
     time : number | null
 }) => {
+    // Purge prev solution if any
+    allocationSolutionStore.purgeSolution()
 
     // Populate scheduledTasks with task values
     const scheduledTasks = schedule.tasks.map(({ id, startTime, endTime, taskId }) => ({
@@ -41,16 +43,26 @@ export default action('allocate', async ({
     allocationSolutionStore.setSolvingSolution(solverOption, time)
     allocationSolutionStore.setAllocatingWorkers(workers)
 
-    console.log(costMatrix)
-    // const resp = await solveAllocation(workers, scheduledTasks, costMatrix)
+    const resp = await solveAllocation({
+        workers,
+        scheduledTasks,
+        costMatrix,
+        solverOption,
+        timeLimit: time,
+    })
 
-    // if (resp && resp.status && scheduleStore.selectedSchedule) {
-    //     allocationSolutionStore.setSolution(resp.solution, scheduleStore.selectedSchedule.id)
+    if (resp && resp.status && scheduleStore.selectedSchedule) {
+        allocationSolutionStore.setSolution({
+            ...resp,
+            selectedScheduleId: scheduleStore.selectedSchedule.id,
+        })
 
-    //     return resp.status
-    // }
+        return resp.status
+    }
 
-    // return false
+    allocationSolutionStore.setSolutionStatus(false)
+
+    return false
 })
 
 

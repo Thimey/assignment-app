@@ -141,7 +141,7 @@ export class AllocateSchedule extends React.Component<Props, State> {
 
     private handleTimeLimitChange = (e : any) => {
         this.setState({
-            timeLimit: e.target.value,
+            timeLimit: parseInt(e.target.value, 10),
         })
     }
 
@@ -206,7 +206,7 @@ export class AllocateSchedule extends React.Component<Props, State> {
                         </Select>
 
                         {
-                            this.state.timeLimit &&
+                            this.state.timeLimit !== null &&
                             <TextField
                                 type="number"
                                 inputProps={{

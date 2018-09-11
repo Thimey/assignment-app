@@ -18,6 +18,17 @@ class AllocationSolutionStore {
     public solutionScheduleId : number | null = null
 
     @observable
+    public objectiveValue : number | null = null
+
+    @observable
+    public solutionStatus : boolean | null = null
+
+    @action.bound
+    public setSolutionStatus(status : boolean | null) {
+        this.solutionStatus = status
+    }
+
+    @observable
     public solving : {
         option : SolveOption
         time : number | null
@@ -37,7 +48,29 @@ class AllocationSolutionStore {
     }
 
     @action.bound
-    public setSolution(solution : Solution | null, selectedScheduleId : number) {
+    public finishedSolving() {
+        this.solving = null
+    }
+
+    @action.bound
+    public purgeSolution() {
+        this.solutionStatus = null
+        this.objectiveValue = null
+        this.solutionMap.clear()
+    }
+
+    @action.bound
+    public setSolution({
+        objectiveValue,
+        status,
+        solution,
+        selectedScheduleId,
+    } : {
+        objectiveValue : number | null
+        status : boolean
+        solution : Solution | null,
+        selectedScheduleId : number
+    }) {
         if (!solution) {
             this.solutionMap.clear()
             this.solutionScheduleId = null
@@ -47,6 +80,9 @@ class AllocationSolutionStore {
                 this.solutionScheduleId = selectedScheduleId
             })
         }
+
+        this.solutionStatus = status
+        this.objectiveValue = objectiveValue
     }
 
     public getAllocated(scheduleTaskId : string) {

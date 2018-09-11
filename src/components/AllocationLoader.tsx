@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
-// import Button from '@material-ui/core/Button'
+import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -56,6 +56,10 @@ class AllocationLoader extends React.Component<Props, State> {
         </div>
     )
 
+    private handleCloseLoader = () => {
+        allocationSolutionStore.finishedSolving()
+    }
+
     render() {
         const {
             classes,
@@ -80,21 +84,33 @@ class AllocationLoader extends React.Component<Props, State> {
                             }
                         </div>
 
-                        <div className={classes.progress}>
-                            <SolverProgress
-                                time={
-                                    allocationSolutionStore.solving
-                                        ? allocationSolutionStore.solving.time
-                                        : null
-                                }
-                            />
-                        </div>
+                        {
+                            allocationSolutionStore.solutionStatus === null &&
+                            <div className={classes.progress}>
+                                <SolverProgress
+                                    time={
+                                        allocationSolutionStore.solving
+                                            ? allocationSolutionStore.solving.time
+                                            : null
+                                    }
+                                />
+                            </div>
+                        }
                     </div>
 
                 </DialogContent>
 
                 <DialogActions>
-
+                    {
+                        allocationSolutionStore.solutionStatus !== null &&
+                        <Button onClick={this.handleCloseLoader}>
+                            {
+                                allocationSolutionStore.solutionStatus
+                                    ? `Solution found! (${allocationSolutionStore.objectiveValue})`
+                                    : 'No solution'
+                            }
+                        </Button>
+                    }
                 </DialogActions>
             </Dialog>
         )
