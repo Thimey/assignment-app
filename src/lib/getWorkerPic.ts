@@ -6,6 +6,10 @@ import chappo from '../assets/chappo.png'
 import emma from '../assets/emma.png'
 import van from '../assets/van.png'
 import vinni from '../assets/vinni.png'
+import jon from '../assets/jon.png'
+import garrad from '../assets/garrad.png'
+import ivan from '../assets/ivan.png'
+import kirk from '../assets/kirk.png'
 
 import { Worker } from '../data'
 
@@ -34,6 +38,18 @@ export default function getPic(worker : Worker) {
 
         case 'vinni':
             return vinni
+
+        case 'jon':
+            return jon
+
+        case 'garrad':
+            return garrad
+
+        case 'ivan':
+            return ivan
+
+        case 'kirk':
+            return kirk
 
         default:
             return simon

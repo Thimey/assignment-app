@@ -1,9 +1,7 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles, Typography } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
 
-import CostMatrix from './views/CostMatrix'
 import ScheduleMatrix from './views/ScheduleMatrix'
 import AllocateSchedule from './views/AllocateSchedule'
 
@@ -76,26 +74,6 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
     private getSchedules = async () => scheduleStore.addSchedules(await getSchedules())
     private getCostMatrix = async () => costStore.addCostMatrices(await getCostMatrix())
 
-    private toggleDisplay = () => {
-        if (this.state.display === Display.schedule) {
-            this.setState({ display: Display.costMatrix })
-        } else {
-            this.setState({ display: Display.schedule })
-        }
-    }
-
-    private renderDisplayToggle() {
-        return (
-            <Button color="primary" onClick={this.toggleDisplay}>
-                {
-                    this.state.display === Display.schedule
-                        ? 'Cost matrix'
-                        : 'Schedule'
-                }
-            </Button>
-        )
-    }
-
     public render() {
         const { display } = this.state
         const { classes } = this.props
@@ -109,9 +87,9 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                     </Typography>
 
                     <div className={classes.subHeader}>
-                        {
+                        {/* {
                             this.renderDisplayToggle()
-                        }
+                        } */}
 
                         {
                             scheduleStore.selectedSchedule &&
@@ -121,11 +99,6 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                 </div>
 
                 <div className={classes.matrixContainer}>
-                    {
-                        display === Display.costMatrix &&
-                        <CostMatrix />
-                    }
-
                     {
                         display === Display.schedule &&
                         <ScheduleMatrix />

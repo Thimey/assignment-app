@@ -6,7 +6,6 @@ import { differenceWith, any, uniq } from 'ramda'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
@@ -15,22 +14,29 @@ import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import InputAdornment from '@material-ui/core/InputAdornment'
 
-import { Worker } from '../data'
-import SelectWorkers from '../components/SelectWorkers'
-import scheduleStore from '../stores/scheduleStore'
-import workerStore from '../stores/workerStore'
-import { SolveOption } from '../stores/allocationSolutionStore'
-import allocate from '../actions/allocate'
+import { Worker } from '../../data'
+import SelectWorkers from '../../components/SelectWorkers'
+import AllocateStepper from '../../components/AllocateStepper'
+
+import scheduleStore from '../../stores/scheduleStore'
+import workerStore from '../../stores/workerStore'
+import { SolveOption } from '../../stores/allocationSolutionStore'
+import allocate from '../../actions/allocate'
+import CostMatrix from '../CostMatrix'
 
 const styles = createStyles({
     container: {
-        height: '80%',
-        width: '80%',
+        height: '100%',
+        width: '100%',
+        display: 'flex',
     },
     headerContainer: {
         display: 'flex',
         alignItems: 'center',
         marginBottom: '8px',
+    },
+    stepperContainer: {
+
     },
     actionsContainer: {
         marginLeft: '8px',
@@ -50,7 +56,10 @@ export interface State {
     selectedWorkerIds : number[]
     selectedSolution : SolveOption
     timeLimit : number | null
+    activeStep : number
 }
+
+// TODO: no work constraint, has to work constraint, consecutive, total
 
 @observer
 export class AllocateSchedule extends React.Component<Props, State> {
@@ -60,6 +69,23 @@ export class AllocateSchedule extends React.Component<Props, State> {
         filter: '',
         selectedSolution: SolveOption.noOptimisation,
         timeLimit: null,
+        activeStep: 0,
+    }
+
+    private setStep = (step : number) => this.setState({
+        activeStep: step,
+    })
+
+    private handleNext = () => {
+        this.setState(state => ({
+            activeStep: state.activeStep + 1,
+        }))
+    }
+
+    private handleBack = () => {
+        this.setState(state => ({
+            activeStep: state.activeStep - 1,
+        }))
     }
 
     private handleFilterChange = (e : any) => {
@@ -145,6 +171,98 @@ export class AllocateSchedule extends React.Component<Props, State> {
         })
     }
 
+    private get steps() {
+        return [
+            {
+                label: 'Solver options',
+                comp: (
+                    <div>
+                        <Select
+                            value={this.state.selectedSolution}
+                            onChange={this.handleSolutionOptionSelect}
+                        >
+                            <MenuItem value={SolveOption.noOptimisation}>No optimisation</MenuItem>
+                            <MenuItem value={SolveOption.optimise}>Giv me a lil optimisation</MenuItem>
+                            <MenuItem value={SolveOption.optimal}>Optimal!</MenuItem>
+                        </Select>
+
+                        {
+                            this.state.timeLimit !== null &&
+                            <TextField
+                                type="number"
+                                inputProps={{
+                                    min: 1,
+                                }}
+                                onChange={this.handleTimeLimitChange}
+                                value={this.state.timeLimit}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">mins</InputAdornment>,
+                                }}
+                            />
+                        }
+                    </div>
+                )
+            },
+            {
+                label: 'Roll call',
+                comp: (
+                    <SelectWorkers
+                        selectedWorkerIds={this.state.selectedWorkerIds}
+                        workers={this.filteredWorkers}
+                        onSelect={this.handleWorkerSelectedOrDeselected}
+                    />
+                )
+            },
+            {
+                label: 'Constraints',
+                comp: (
+                    <div>
+                        Constraints
+                    </div>
+                )
+            },
+            {
+                label: 'Cost matrix',
+                comp: <CostMatrix />,
+            },
+        ]
+    }
+
+    private renderActionControls() {
+        const { activeStep } = this.state
+
+        if (this.state.activeStep !== this.steps.length) {
+            return (
+                <div>
+                    <Button
+                        disabled={activeStep === 0}
+                        onClick={this.handleBack}
+                    >
+                        Back
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.handleNext}
+                    >
+                        {activeStep === this.steps.length - 1 ? 'Finish' : 'Next'}
+                    </Button>
+                </div>
+            )
+        }
+
+        return (
+            <Button
+                variant="raised"
+                color="secondary"
+                onClick={this.handleAllocate}
+                disabled={!this.canAllocate}
+            >
+                Allocate
+            </Button>
+        )
+    }
+
     render() {
         const { classes } = this.props
 
@@ -162,7 +280,7 @@ export class AllocateSchedule extends React.Component<Props, State> {
                     <DialogTitle disableTypography>
                         <div className={classes.headerContainer}>
                             <Typography variant="title">
-                                Roll call
+                                Assignment model
                             </Typography>
 
                             <div className={classes.actionsContainer}>
@@ -187,50 +305,21 @@ export class AllocateSchedule extends React.Component<Props, State> {
 
                     </DialogTitle>
 
-                    <DialogContent>
-                        <SelectWorkers
-                            selectedWorkerIds={this.state.selectedWorkerIds}
-                            workers={this.filteredWorkers}
-                            onSelect={this.handleWorkerSelectedOrDeselected}
-                        />
-                    </DialogContent>
+                    <AllocateStepper
+                        onLabelClick={this.setStep}
+                        activeStep={this.state.activeStep}
+                        steps={this.steps}
+                    />
 
                     <DialogActions>
-                        <Select
-                            value={this.state.selectedSolution}
-                            onChange={this.handleSolutionOptionSelect}
-                        >
-                            <MenuItem value={SolveOption.noOptimisation}>No optimisation</MenuItem>
-                            <MenuItem value={SolveOption.optimise}>Giv me a lil optimisation</MenuItem>
-                            <MenuItem value={SolveOption.optimal}>Optimal!</MenuItem>
-                        </Select>
-
                         {
-                            this.state.timeLimit !== null &&
-                            <TextField
-                                type="number"
-                                inputProps={{
-                                    min: 1,
-                                }}
-                                onChange={this.handleTimeLimitChange}
-                                value={this.state.timeLimit}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">mins</InputAdornment>,
-                                }}
-                            />
+                            this.renderActionControls()
                         }
 
                         <Button onClick={this.handleClose}>
                             Cancel
                         </Button>
-                        <Button
-                            variant="raised"
-                            color="secondary"
-                            onClick={this.handleAllocate}
-                            disabled={!this.canAllocate}
-                        >
-                            Allocate
-                        </Button>
+
                     </DialogActions>
                 </Dialog>
             </React.Fragment>

@@ -94,6 +94,19 @@ class CostMatrix extends React.Component<Props> {
 
         return (
             <div className={classes.container}>
+                <div className={classes.matrixContainer}>
+                    <Matrix
+                        cells={this.cells}
+                        colHeaders={taskStore.tasks as Task[]}
+                        rowHeaders={workerStore.workers as Worker[]}
+                        renderCell={this.renderCost}
+                        renderColHeader={this.renderTask}
+                        renderRowHeader={this.renderWorker}
+                        cellWidthPx={COST_MATRIX_CELL_WIDTH_PX}
+                        cellHeaderHeightPx={COST_MATRIX_HEADER_CELL_HEIGHT_PX}
+                        cellContentHeightPx={COST_MATRIX_CONTENT_CELL_HEIGHT_PX}
+                    />
+                </div>
 
                 <div className={classes.sideContainer}>
                     <NewButton
@@ -109,20 +122,6 @@ class CostMatrix extends React.Component<Props> {
                         selectedScheduleId={costStore.selectedCostMatrixId}
                         costMatrices={costStore.savedMatrices}
                         onCostMatrixClick={this.handleCostMatrixListClick}
-                    />
-                </div>
-
-                <div className={classes.matrixContainer}>
-                    <Matrix
-                        cells={this.cells}
-                        colHeaders={taskStore.tasks as Task[]}
-                        rowHeaders={workerStore.workers as Worker[]}
-                        renderCell={this.renderCost}
-                        renderColHeader={this.renderTask}
-                        renderRowHeader={this.renderWorker}
-                        cellWidthPx={COST_MATRIX_CELL_WIDTH_PX}
-                        cellHeaderHeightPx={COST_MATRIX_HEADER_CELL_HEIGHT_PX}
-                        cellContentHeightPx={COST_MATRIX_CONTENT_CELL_HEIGHT_PX}
                     />
                 </div>
             </div>

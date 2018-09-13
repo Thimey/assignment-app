@@ -1,4 +1,4 @@
-import { Worker, Task, ScheduledTask, CostMatrix } from '../data'
+import { Worker, Task, ScheduledTask, CostMatrix, Time } from '../data'
 import { SolveOption } from '../stores/allocationSolutionStore'
 
 export interface ScheduledTaskForSolver extends Pick<ScheduledTask, 'id' | 'startTime' | 'endTime'> {
@@ -7,13 +7,45 @@ export interface ScheduledTaskForSolver extends Pick<ScheduledTask, 'id' | 'star
 
 export type Solution = Record<string, number[]>
 
+export interface TaskFatigueConstraint {
+    workerId : number
+    taskId : number
+    limit : number
+}
+
+export interface TimeUnavailableConstraint {
+    workerId : number
+    start : Time
+    end : Time
+}
+
+export interface CannotWorkConstraint {
+    workerId : number
+    taskId : number
+}
+
+export interface MustWorkConstraint {
+    workerId : number
+    taskId : number
+}
+
+export interface Constraints {
+    fatigueTotal: TaskFatigueConstraint[]
+    fatigueConsecutive: TaskFatigueConstraint[]
+    unavailable : TimeUnavailableConstraint[]
+    cannotWork : CannotWorkConstraint[]
+    mustWork : MustWorkConstraint[]
+}
+
 export interface SolverResponse {
     status : boolean
     solution : Solution | null
     objectiveValue : number | null
 }
 
+
 const SOLVER_URL = 'http://localhost:5000/solve'
+
 
 export async function solveAllocation(payload : {
     workers : Worker[],
