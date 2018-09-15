@@ -1,7 +1,6 @@
 import * as React from 'react'
-// import { computed } from 'mobx'
 import { observer } from 'mobx-react'
-import { differenceWith, any, uniq } from 'ramda'
+import { differenceWith, uniq } from 'ramda'
 
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
@@ -10,19 +9,21 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import InputAdornment from '@material-ui/core/InputAdornment'
 
 import { Worker } from '../../data'
 import SelectWorkers from '../../components/SelectWorkers'
 import AllocateStepper from '../../components/AllocateStepper'
+
+import { filterWorkers } from '../../lib/filterWorkers'
 
 import scheduleStore from '../../stores/scheduleStore'
 import workerStore from '../../stores/workerStore'
 import { SolveOption } from '../../stores/allocationSolutionStore'
 import allocate from '../../actions/allocate'
 import CostMatrix from '../CostMatrix'
+
+import SolverOptions from './SolverOptions'
+import Constraints from './Constraints'
 
 const styles = createStyles({
     container: {
@@ -38,11 +39,27 @@ const styles = createStyles({
     stepperContainer: {
 
     },
+    rollCall: {
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        overflow: 'scroll',
+    },
     actionsContainer: {
-        marginLeft: '8px',
+        marginBottom: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
     },
     filter: {
+        marginRight: '16px',
         marginLeft: '8px',
+        maxWidth: '600px',
+    },
+    selectAll: {
+        marginRight: '8px',
+        width: '180px',
     }
 })
 
@@ -65,11 +82,11 @@ export interface State {
 export class AllocateSchedule extends React.Component<Props, State> {
     state : State = {
         selectedWorkerIds: [],
-        open: false,
+        open: true,
         filter: '',
         selectedSolution: SolveOption.noOptimisation,
         timeLimit: null,
-        activeStep: 0,
+        activeStep: 2,
     }
 
     private setStep = (step : number) => this.setState({
@@ -95,11 +112,7 @@ export class AllocateSchedule extends React.Component<Props, State> {
     }
 
     private get filteredWorkers() {
-        return workerStore.workers
-            .filter(worker =>
-                worker.name.includes(this.state.filter) ||
-                any(tag => tag.includes(this.state.filter), worker.tags)
-            )
+        return filterWorkers(workerStore.workers, this.state.filter)
     }
 
     private handleOpen = () => this.setState({ open: true })
@@ -156,74 +169,77 @@ export class AllocateSchedule extends React.Component<Props, State> {
         }
     }
 
-    private handleSolutionOptionSelect = (e : any) => {
+    private handleSolutionOptionSelect = (option : SolveOption) => {
         this.setState({
-            selectedSolution: e.target.value,
-            timeLimit: e.target.value !== SolveOption.optimise
+            selectedSolution: option,
+            timeLimit: option !== SolveOption.optimise
                 ? null
                 : DEFAULT_TIME_LIMIT_MINS
         })
     }
 
-    private handleTimeLimitChange = (e : any) => {
+    private handleTimeLimitChange = (timeLimit : number) => {
         this.setState({
-            timeLimit: parseInt(e.target.value, 10),
+            timeLimit,
         })
     }
 
     private get steps() {
+        const { classes } = this.props
+
         return [
             {
                 label: 'Solver options',
                 comp: (
-                    <div>
-                        <Select
-                            value={this.state.selectedSolution}
-                            onChange={this.handleSolutionOptionSelect}
-                        >
-                            <MenuItem value={SolveOption.noOptimisation}>No optimisation</MenuItem>
-                            <MenuItem value={SolveOption.optimise}>Giv me a lil optimisation</MenuItem>
-                            <MenuItem value={SolveOption.optimal}>Optimal!</MenuItem>
-                        </Select>
+                    <SolverOptions
+                        selectedSolution={this.state.selectedSolution}
+                        onSolutionOptionSelect={this.handleSolutionOptionSelect}
+                        timeLimit={this.state.timeLimit}
+                        onTimeLimitChange={this.handleTimeLimitChange}
 
-                        {
-                            this.state.timeLimit !== null &&
-                            <TextField
-                                type="number"
-                                inputProps={{
-                                    min: 1,
-                                }}
-                                onChange={this.handleTimeLimitChange}
-                                value={this.state.timeLimit}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">mins</InputAdornment>,
-                                }}
-                            />
-                        }
-                    </div>
-                )
+                    />)
             },
             {
                 label: 'Roll call',
                 comp: (
-                    <SelectWorkers
-                        selectedWorkerIds={this.state.selectedWorkerIds}
-                        workers={this.filteredWorkers}
-                        onSelect={this.handleWorkerSelectedOrDeselected}
-                    />
-                )
-            },
-            {
-                label: 'Constraints',
-                comp: (
-                    <div>
-                        Constraints
+                    <div className={classes.rollCall}>
+                        <div className={classes.actionsContainer}>
+                            <TextField
+                                fullWidth
+                                className={classes.filter}
+                                value={this.state.filter}
+                                onChange={this.handleFilterChange}
+                                placeholder="search name or tags"
+                            />
+                            <Button
+                                className={classes.selectAll}
+                                variant="raised"
+                                color="secondary"
+                                onClick={this.handleSelectOrDeSelectAll}
+                            >
+                                {
+                                    this.allSelected
+                                        ? 'DeSelect all'
+                                        : 'Select all'
+                                }
+                            </Button>
+                        </div>
+                        <SelectWorkers
+                            selectedWorkerIds={this.state.selectedWorkerIds}
+                            workers={this.filteredWorkers}
+                            onSelect={this.handleWorkerSelectedOrDeselected}
+                        />
                     </div>
                 )
             },
             {
+                label: 'Constraints',
+                comp: <Constraints />
+            },
+            {
                 label: 'Cost matrix',
                 comp: <CostMatrix />,
+                disabled: true,
             },
         ]
     }
@@ -282,25 +298,6 @@ export class AllocateSchedule extends React.Component<Props, State> {
                             <Typography variant="title">
                                 Assignment model
                             </Typography>
-
-                            <div className={classes.actionsContainer}>
-                                <Button
-                                    color="primary"
-                                    onClick={this.handleSelectOrDeSelectAll}
-                                >
-                                    {
-                                        this.allSelected
-                                            ? 'DeSelect all'
-                                            : 'Select all'
-                                    }
-                                </Button>
-                                <TextField
-                                    className={classes.filter}
-                                    value={this.state.filter}
-                                    onChange={this.handleFilterChange}
-                                    placeholder="search name or tags"
-                                />
-                            </div>
                         </div>
 
                     </DialogTitle>

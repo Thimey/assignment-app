@@ -53,7 +53,6 @@ function WorkerAllocatedCard({
                 })}
                 worker={worker}
             />
-            {/* { name } */}
         </div>
     )
 }

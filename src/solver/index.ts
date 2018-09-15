@@ -29,6 +29,22 @@ export interface MustWorkConstraint {
     taskId : number
 }
 
+export enum ConstraintType {
+    sameTask = 'sameTask',
+    sameTime = 'sameTime',
+    cannotWork = 'cannotWork',
+    mustWork = 'mustWork',
+    fatigueTotal = 'fatigueTotal',
+    fatigueConsecutive = 'fatigueConsecutive',
+    unavailable = 'unavailable',
+}
+
+export type Constraint = TaskFatigueConstraint |
+    TaskFatigueConstraint |
+    TimeUnavailableConstraint |
+    CannotWorkConstraint |
+    MustWorkConstraint
+
 export interface Constraints {
     fatigueTotal: TaskFatigueConstraint[]
     fatigueConsecutive: TaskFatigueConstraint[]

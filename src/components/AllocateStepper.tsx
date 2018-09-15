@@ -26,6 +26,7 @@ const styles = createStyles({
 export interface StepObj {
     comp : JSX.Element
     label : string
+    disabled ?: boolean
 }
 
 export interface Props extends WithStyles<typeof styles> {
@@ -39,9 +40,9 @@ class AllocateStepper extends React.Component<Props> {
     private handleLabelClick = (index : number) => (e : any) =>
         this.props.onLabelClick(index)
 
-    private renderStep = ({ label, comp } : StepObj, index : number) => {
+    private renderStep = ({ label, disabled } : StepObj, index : number) => {
         return (
-            <Step key={label}>
+            <Step disabled={disabled} key={label}>
                 <StepLabel
                     onClick={this.handleLabelClick(index)}
                 >

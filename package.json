@@ -1,6 +1,7 @@
 {
   "name": "assignment-app",
   "version": "0.1.0",
+  "license": "UNLICENSED",
   "private": true,
   "devDependencies": {
     "@types/jest": "^23.3.1",

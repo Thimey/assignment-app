@@ -3,7 +3,6 @@ import { observer } from 'mobx-react'
 import Matrix from '../components/Matrix'
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
 import Divider from '@material-ui/core/Divider'
-import Typography from '@material-ui/core/Typography'
 
 import { getTimes, renderTime } from '../lib/time'
 import { Task, Schedule, Time, ScheduledTask } from '../data'
@@ -97,14 +96,6 @@ class ScheduleMatrix extends React.Component<Props> {
         </div>
     )
 
-    private renderNullSchedule() {
-        return (
-            <Typography variant="display1">
-                Select/create schedule to start!
-            </Typography>
-        )
-    }
-
     private handleCloseTaskToSchedule = () =>
         scheduleStore.setSelectedTimeTask(null)
 
@@ -143,9 +134,8 @@ class ScheduleMatrix extends React.Component<Props> {
 
                     <div className={classes.matrixContainer}>
                         {
-                            !selectedSchedule
-                                ? this.renderNullSchedule()
-                                : <Matrix
+                            selectedSchedule &&
+                                <Matrix
                                     cells={this.cells}
                                     colHeaders={getTimes()}
                                     rowHeaders={taskStore.tasks as any}

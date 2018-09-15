@@ -18,6 +18,9 @@ class ScheduleStore {
         schedules.forEach(schedule =>
             this.schedulesMap.set(schedule.id, schedule)
         )
+
+        // Set first ont to selected
+        this.selectedScheduleId = schedules[0].id
     }
 
     @action.bound

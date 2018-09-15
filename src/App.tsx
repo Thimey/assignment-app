@@ -10,12 +10,14 @@ import {
     getTasks,
     getSchedules,
     getCostMatrix,
+    getConstraints,
 } from './data'
 
 import taskStore from './stores/taskStore'
 import scheduleStore from './stores/scheduleStore'
 import workerStore from './stores/workerStore'
 import costStore from './stores/costStore'
+import constraintStore from './stores/constraintStore'
 
 import AllocationLoader from './components/AllocationLoader'
 
@@ -67,12 +69,14 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
         this.getWorkers()
         this.getSchedules()
         this.getCostMatrix()
+        this.getConstraints()
     }
 
     private getWorkers = async () => workerStore.addWorkers(await getWorkers())
     private getTasks = async () => taskStore.addTasks(await getTasks())
     private getSchedules = async () => scheduleStore.addSchedules(await getSchedules())
     private getCostMatrix = async () => costStore.addCostMatrices(await getCostMatrix())
+    private getConstraints = async () => constraintStore.addConstraints(await getConstraints())
 
     public render() {
         const { display } = this.state
@@ -87,10 +91,6 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                     </Typography>
 
                     <div className={classes.subHeader}>
-                        {/* {
-                            this.renderDisplayToggle()
-                        } */}
-
                         {
                             scheduleStore.selectedSchedule &&
                             <AllocateSchedule />

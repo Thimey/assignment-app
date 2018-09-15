@@ -44,6 +44,16 @@ export interface Schedule {
     tasks : ScheduledTask[]
 }
 
+export interface SavedMustCannotWorkConstraint {
+    workers : number[]
+    tasks : number[]
+}
+
+export interface SavedConstraints {
+    mustWork: SavedMustCannotWorkConstraint[]
+    cannotWork : SavedMustCannotWorkConstraint[]
+}
+
 const getUrl = (path : string) => `http://localhost:3000${path}`
 
 const fetchData = (path : string, method : string) => async (payload ?: any) => {
@@ -68,9 +78,13 @@ const fetchData = (path : string, method : string) => async (payload ?: any) => 
 export const getWorkers = fetchData('/workers', 'GET')
 export const getTasks = fetchData('/tasks', 'GET')
 export const getSchedules = fetchData('/schedules', 'GET')
+
 export const saveSchedule = fetchData('/schedules', 'POST')
 export const updateSchedule = (id : number) => fetchData(`/schedules/${id}`, 'PUT')
+
 export const saveCostMatrix = fetchData('/costMatrix', 'POST')
 export const getCostMatrix = fetchData('/costMatrix', 'GET')
 export const updateCostMatrix = (id : number) => fetchData(`/costMatrix/${id}`, 'PUT')
 
+export const getConstraints = fetchData('/constraints', 'GET')
+export const saveConstraints = fetchData('./constraints', 'POST')
