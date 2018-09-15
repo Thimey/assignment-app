@@ -1,10 +1,13 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
+import classnames from 'classnames'
 
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
+import Switch from '@material-ui/core/Switch'
+import RemoveIcon from '@material-ui/icons/Delete'
 
 import { ConstraintType } from '../../solver'
 import { SavedMustCannotWorkConstraint, Worker, Task } from '../../data'
@@ -20,17 +23,32 @@ const styles = createStyles({
         width: '400px',
     },
     constraintContainer: {
+        marginTop: '16px',
+        display: 'flex',
+    },
+    constraintPaperContainer: {
         padding: '8px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: '16px',
+        flex: 1,
+    },
+    actionContainer: {
+        marginLeft: '16px',
+        width: '100px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     taskPickerContainer: {
         width: '400px',
     },
     addButton: {
         marginTop: '16px',
+    },
+    disabled: {
+        opacity: 0.2,
     }
 })
 
@@ -55,62 +73,93 @@ class MustCannotConstraint extends React.Component<Props, State> {
         )
     }
 
-    private updateWorkers = (index: number, currentTaskIds : number[]) => (selectedWorkerIds : Worker['id'][]) => {
+    private updateWorkers = (index: number, constraint : SavedMustCannotWorkConstraint) => (selectedWorkerIds : Worker['id'][]) => {
         constraintStore.updateConstraint(
             this.props.type,
             index,
             {
+                ...constraint,
                 workers: selectedWorkerIds,
-                tasks: currentTaskIds,
             }
         )
     }
 
-    private updateTasks = (index: number, currentWorkerIds : number[]) => (selectedTaskIds : Task['id'][]) => {
+    private updateTasks = (index: number, constraint : SavedMustCannotWorkConstraint) => (selectedTaskIds : Task['id'][]) => {
         constraintStore.updateConstraint(
             this.props.type,
             index,
             {
+                ...constraint,
                 tasks: selectedTaskIds,
-                workers: currentWorkerIds,
             }
         )
     }
 
-    private renderConstraint = ({ workers, tasks } : SavedMustCannotWorkConstraint, index : number) => {
+    private toggleDisable = (index: number, constraint : SavedMustCannotWorkConstraint) => (e : any) => {
+        constraintStore.updateConstraint(
+            this.props.type,
+            index,
+            {
+                ...constraint,
+                disabled: !constraint.disabled,
+            }
+        )
+    }
+
+    private handleRemove = (index : number) => () => {
+        constraintStore.deleteConstraint(this.props.type, index)
+    }
+
+    private renderConstraint = (constraint : SavedMustCannotWorkConstraint, index : number) => {
         const { classes, color, type } = this.props
 
         return (
-            <Paper
+            <div
                 key={index}
-                style={{
-                    backgroundColor: color || 'white',
-                }}
-                className={classes.constraintContainer}>
-
-                <div className={classes.workerPickerContainer}>
-                    <WorkerPicker
-                        selectedWorkerIds={workers}
-                        onSelect={this.updateWorkers(index, tasks)}
+                className={classes.constraintContainer}
+            >
+                <div className={classes.actionContainer}>
+                    <Switch
+                        checked={!constraint.disabled}
+                        onChange={this.toggleDisable(index, constraint)}
                     />
+                    <Button onClick={this.handleRemove(index)}>
+                        <RemoveIcon  />
+                    </Button>
                 </div>
+                <Paper
+                    style={{
+                        backgroundColor: color || 'white',
+                    }}
+                    className={classnames(classes.constraintPaperContainer, {
+                        [classes.disabled]: constraint.disabled,
+                    })}
+                >
 
-                <Typography variant="title">
-                    {
-                        type === ConstraintType.mustWork
+                    <div className={classes.workerPickerContainer}>
+                        <WorkerPicker
+                            selectedWorkerIds={constraint.workers}
+                            onSelect={this.updateWorkers(index, constraint)}
+                            />
+                    </div>
+
+                    <Typography variant="title">
+                        {
+                            type === ConstraintType.mustWork
                             ? 'must'
                             : 'cannot'
-                    } perform
-                </Typography>
+                        } perform
+                    </Typography>
 
-                <div className={classes.taskPickerContainer}>
-                    <TaskPicker
-                        selectedTaskIds={tasks}
-                        onSelect={this.updateTasks(index, workers)}
-                    />
-                </div>
+                    <div className={classes.taskPickerContainer}>
+                        <TaskPicker
+                            selectedTaskIds={constraint.tasks}
+                            onSelect={this.updateTasks(index, constraint)}
+                            />
+                    </div>
 
-            </Paper>
+                </Paper>
+            </div>
         )
     }
 

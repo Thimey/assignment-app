@@ -82,11 +82,11 @@ export interface State {
 export class AllocateSchedule extends React.Component<Props, State> {
     state : State = {
         selectedWorkerIds: [],
-        open: true,
+        open: false,
         filter: '',
         selectedSolution: SolveOption.noOptimisation,
         timeLimit: null,
-        activeStep: 2,
+        activeStep: 0,
     }
 
     private setStep = (step : number) => this.setState({
@@ -115,10 +115,14 @@ export class AllocateSchedule extends React.Component<Props, State> {
         return filterWorkers(workerStore.workers, this.state.filter)
     }
 
-    private handleOpen = () => this.setState({ open: true })
+    private handleOpen = () => this.setState({
+        open: true,
+    })
+
     private handleClose = () => this.setState({
         open: false,
         selectedWorkerIds: [],
+        activeStep: 0,
     })
 
     private get allSelected() {

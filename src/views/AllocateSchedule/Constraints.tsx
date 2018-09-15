@@ -5,9 +5,11 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 import { ConstraintType } from '../../solver'
+import saveConstraints from '../../actions/saveConstraints'
 
 import MustCannotConstraint from './MustCannotConstraint'
 
@@ -57,6 +59,10 @@ class Constraints extends React.Component<Props, State> {
 
     private isExpanded(constraint : string) {
         return !!this.state.expanded.find(c => c === constraint)
+    }
+
+    private saveConstraints = () => {
+        saveConstraints()
     }
 
     private get constraints() : ConstraintsDetails[] {
@@ -113,6 +119,9 @@ class Constraints extends React.Component<Props, State> {
 
         return (
             <div className={classes.container}>
+                <Button onClick={this.saveConstraints}>
+                    Save constraints
+                </Button>
                 {
                     this.constraints.map(this.renderConstraint)
                 }

@@ -1,9 +1,11 @@
-import { action, observable, IObservableArray, computed } from 'mobx'
+import { action, observable, IObservableArray, toJS } from 'mobx'
 
 import { ConstraintType, Constraints } from '../solver'
+import transformConstraints from '../lib/tranformConstraints'
 
 import {
-    SavedMustCannotWorkConstraint
+    SavedMustCannotWorkConstraint,
+    SavedConstraintBase,
 } from '../data'
 
 class ConstraintStore {
@@ -34,11 +36,33 @@ class ConstraintStore {
         }
     }
 
-    @computed
+    @action.bound
+    public deleteConstraint(type : ConstraintType, index : number) {
+        if (type === ConstraintType.mustWork) {
+            this.mustWorkConstraints.replace(this.mustWorkConstraints.filter((_, i) => i !== index))
+        } else if (type === ConstraintType.cannotWork) {
+            this.cannotWorkConstraints.replace(this.cannotWorkConstraints.filter((_, i) => i !== index))
+        }
+    }
+
+    private filterDisabled = ({ disabled } : SavedConstraintBase) => !disabled
+
+    private prepareConstraintsForSolver(constraints : SavedConstraintBase[]) {
+        return transformConstraints(constraints.filter(this.filterDisabled))
+    }
+
     public getConstraintsForSolver() : Constraints {
         return {
+            mustWork: this.prepareConstraintsForSolver(toJS(this.mustWorkConstraints)) as any,
+            cannotWork: this.prepareConstraintsForSolver(toJS(this.cannotWorkConstraints)) as any,
+        }
+    }
 
-        } as any
+    public getConstraintsForDb() : Constraints {
+        return {
+            mustWork: toJS(this.mustWorkConstraints) as any,
+            cannotWork: toJS(this.cannotWorkConstraints) as any,
+        }
     }
 }
 

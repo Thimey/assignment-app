@@ -13,6 +13,11 @@ export interface TaskFatigueConstraint {
     limit : number
 }
 
+export interface TimeFatigueConstraint {
+    workerId : number
+    limit : number
+}
+
 export interface TimeUnavailableConstraint {
     workerId : number
     start : Time
@@ -41,16 +46,19 @@ export enum ConstraintType {
 
 export type Constraint = TaskFatigueConstraint |
     TaskFatigueConstraint |
+    TimeFatigueConstraint |
     TimeUnavailableConstraint |
     CannotWorkConstraint |
     MustWorkConstraint
 
 export interface Constraints {
-    fatigueTotal: TaskFatigueConstraint[]
-    fatigueConsecutive: TaskFatigueConstraint[]
-    unavailable : TimeUnavailableConstraint[]
-    cannotWork : CannotWorkConstraint[]
-    mustWork : MustWorkConstraint[]
+    taskFatigueTotal ?: TaskFatigueConstraint[]
+    timeFatigueTotal ?: TimeFatigueConstraint[]
+    taskFatigueConsecutive ?: TaskFatigueConstraint[]
+    timeFatigueConsecutive ?: TimeFatigueConstraint[]
+    unavailable ?: TimeUnavailableConstraint[]
+    cannotWork ?: CannotWorkConstraint[]
+    mustWork ?: MustWorkConstraint[]
 }
 
 export interface SolverResponse {

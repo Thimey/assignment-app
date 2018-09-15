@@ -44,8 +44,12 @@ export interface Schedule {
     tasks : ScheduledTask[]
 }
 
-export interface SavedMustCannotWorkConstraint {
+export interface SavedConstraintBase {
     workers : number[]
+    disabled : boolean
+}
+
+export interface SavedMustCannotWorkConstraint extends SavedConstraintBase {
     tasks : number[]
 }
 
@@ -87,4 +91,4 @@ export const getCostMatrix = fetchData('/costMatrix', 'GET')
 export const updateCostMatrix = (id : number) => fetchData(`/costMatrix/${id}`, 'PUT')
 
 export const getConstraints = fetchData('/constraints', 'GET')
-export const saveConstraints = fetchData('./constraints', 'POST')
+export const saveConstraints = fetchData('/constraints', 'POST')
