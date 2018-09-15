@@ -19,9 +19,7 @@ const styles = createStyles({
     displayContainer: {
         display: 'flex',
         flexWrap: 'wrap',
-        justifyContent: 'center',
-        alignItems: 'center',
-        maxWidth: '250px',
+        width: '100%',
     },
     displayAvatarContainer: {
         marginRight: '4px',
@@ -78,7 +76,7 @@ class WorkerPicker extends React.Component<Props, State> {
         const { selectedWorkerIds } = this.props
 
         const newWorkerIds = selectedWorkerIds.indexOf(worker.id) > -1
-            ? selectedWorkerIds.filter(id => worker.id !== worker.id)
+            ? selectedWorkerIds.filter(id => worker.id !== id)
             : [...selectedWorkerIds, worker.id]
 
         this.props.onSelect(newWorkerIds)
@@ -103,6 +101,14 @@ class WorkerPicker extends React.Component<Props, State> {
     }
 
     private renderDisplay() {
+        if (!this.props.selectedWorkerIds.length) {
+            return (
+                <Button type="flat">
+                    Select workers
+                </Button>
+            )
+        }
+
         return <div className={this.props.classes.displayContainer}>
             {
                 this.props.selectedWorkerIds.map((id) => {
@@ -110,7 +116,7 @@ class WorkerPicker extends React.Component<Props, State> {
 
                     if (worker) {
                         return (
-                            <div className={this.props.classes.displayAvatarContainer}>
+                            <div key={worker.id} className={this.props.classes.displayAvatarContainer}>
                                 <WorkerAvatar worker={worker} />
                             </div>
                         )

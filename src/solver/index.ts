@@ -69,7 +69,7 @@ export async function solveAllocation(payload : {
     costMatrix : CostMatrix,
     solverOption : SolveOption,
     timeLimit : number | null,
-    constraints ?: any, // TODO
+    constraints ?: Constraints,
 }) : Promise<SolverResponse | null> {
     const headers = {
         'Content-Type': 'application/json',

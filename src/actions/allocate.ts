@@ -7,6 +7,7 @@ import { Schedule, Task, Worker } from '../data'
 import taskStore from '../stores/taskStore'
 import workerStore from '../stores/workerStore'
 import scheduleStore from '../stores/scheduleStore'
+import constraintStore from '../stores/constraintStore'
 import costStore from '../stores/costStore'
 import allocationSolutionStore, { SolveOption } from '../stores/allocationSolutionStore'
 
@@ -43,12 +44,16 @@ export default action('allocate', async ({
     allocationSolutionStore.setSolvingSolution(solverOption, time)
     allocationSolutionStore.setAllocatingWorkers(workers)
 
+    // get custom constraints
+    const constraints = constraintStore.getConstraintsForSolver() || undefined
+
     const resp = await solveAllocation({
         workers,
         scheduledTasks,
         costMatrix,
         solverOption,
         timeLimit: time,
+        constraints,
     })
 
     if (resp && resp.status && scheduleStore.selectedSchedule) {

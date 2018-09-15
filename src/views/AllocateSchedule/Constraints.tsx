@@ -13,11 +13,19 @@ import MustCannotConstraint from './MustCannotConstraint'
 
 const styles = createStyles({
     container: {
+        height: '100%',
         width: '100%',
+        overflow: 'scroll',
+        paddingTop: '1px',
+        paddingLeft: '8px',
+        paddingRight: '8px',
     },
     constraintDetails: {
         display: 'flex',
         flexDirection: 'column',
+    },
+    compContainer: {
+        marginTop: '16px',
     }
 })
 
@@ -37,7 +45,7 @@ export interface ConstraintsDetails {
 
 
 class Constraints extends React.Component<Props, State> {
-    state : State = { expanded: ['cannotWork'] }
+    state : State = { expanded: [ConstraintType.mustWork] }
 
     private handleChange = (constraint : string) => (_e : any, expanded : boolean) => {
         this.setState((prevState : State) => ({
@@ -69,13 +77,13 @@ class Constraints extends React.Component<Props, State> {
                 id: ConstraintType.cannotWork,
                 name: 'Cannot assign constraint',
                 info: 'Add constraints where workers CANNOT perform tasks',
-                comp: <div></div>
+                comp: <MustCannotConstraint type={ConstraintType.cannotWork} />
             },
             {
                 id: ConstraintType.mustWork,
                 name: 'Must assign constraint',
                 info: 'Add constraints where workers MUST perform tasks',
-                comp: <MustCannotConstraint />
+                comp: <MustCannotConstraint type={ConstraintType.mustWork} />
             },
         ]
     }
@@ -90,7 +98,7 @@ class Constraints extends React.Component<Props, State> {
                     <Typography>
                         {info}
                     </Typography>
-                    <div>
+                    <div className={this.props.classes.compContainer}>
                         {comp}
                     </div>
                 </ExpansionPanelDetails>
