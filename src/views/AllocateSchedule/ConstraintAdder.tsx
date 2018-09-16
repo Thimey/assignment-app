@@ -16,6 +16,7 @@ import {
     SavedConstraintType,
     SavedMustCannotWorkConstraint,
     SavedTimeFatigueTotalConstraint,
+    SavedAtLeastWorkConstraint,
     Worker,
     Task,
 } from '../../data'
@@ -135,6 +136,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
             title = 'limit of'
         } else if (type === ConstraintType.atLeastWork) {
             title = 'at least once'
+        } else if (type === ConstraintType.overallTimeFatigueTotal) {
+            title = 'overall limit of'
         } else {
             return null
         }
@@ -159,7 +162,10 @@ class MustCannotConstraint extends React.Component<Props, State> {
     }
 
     private renderLimitField(index : number, constraint : SavedConstraintType) {
-        if (this.props.type !== ConstraintType.timeFatigueTotal) {
+        if (
+            this.props.type !== ConstraintType.timeFatigueTotal &&
+            this.props.type !== ConstraintType.overallTimeFatigueTotal
+        ) {
             return null
         }
 
@@ -177,6 +183,23 @@ class MustCannotConstraint extends React.Component<Props, State> {
                     endAdornment: <InputAdornment position="end">mins</InputAdornment>,
                 }}
             />
+        )
+    }
+
+    private renderTaskPicker(index : number, constraint : SavedConstraintType) {
+        if (this.props.type === ConstraintType.overallTimeFatigueTotal) {
+            return null
+        }
+
+        const taskConstraint = constraint as (SavedMustCannotWorkConstraint | SavedAtLeastWorkConstraint | SavedTimeFatigueTotalConstraint)
+
+        return (
+            <div className={this.props.classes.taskPickerContainer}>
+                <TaskPicker
+                    selectedTaskIds={taskConstraint.tasks}
+                    onSelect={this.updateTasks(index, taskConstraint)}
+                    />
+            </div>
         )
     }
 
@@ -225,12 +248,9 @@ class MustCannotConstraint extends React.Component<Props, State> {
                         this.renderTitle2()
                     }
 
-                    <div className={classes.taskPickerContainer}>
-                        <TaskPicker
-                            selectedTaskIds={constraint.tasks}
-                            onSelect={this.updateTasks(index, constraint)}
-                            />
-                    </div>
+                    {
+                        this.renderTaskPicker(index, constraint)
+                    }
                 </Paper>
             </div>
         )
@@ -252,6 +272,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
             constraints = constraintStore.atLeastWorkConstraints
         } else if (type === ConstraintType.timeFatigueTotal) {
             constraints = constraintStore.timeFatigueTotalConstraints
+        } else if (type === ConstraintType.overallTimeFatigueTotal) {
+            constraints = constraintStore.overallTimeFatigueTotalConstraints
         }
 
         return (

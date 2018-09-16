@@ -32,7 +32,6 @@ function WorkerCostCard({
                 className={classes.image}
                 worker={worker}
             />
-            {/* { name } */}
         </div>
     )
 }

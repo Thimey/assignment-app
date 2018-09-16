@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+import { createStyles, withStyles, Theme, WithStyles } from '@material-ui/core'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
@@ -13,7 +13,7 @@ import saveConstraints from '../../actions/saveConstraints'
 
 import ConstraintAdder from './ConstraintAdder'
 
-const styles = createStyles({
+const styles = (theme : Theme) => createStyles({
     container: {
         height: '100%',
         width: '100%',
@@ -28,6 +28,9 @@ const styles = createStyles({
     },
     compContainer: {
         marginTop: '16px',
+    },
+    expandedPanel: {
+        backgroundColor: theme.palette.grey["200"],
     }
 })
 
@@ -103,12 +106,25 @@ class Constraints extends React.Component<Props, State> {
                 info: 'Add constraints where workers cannot perform over a limit of time for a task(s)',
                 comp: <ConstraintAdder type={ConstraintType.timeFatigueTotal} />
             },
+            {
+                id: ConstraintType.overallTimeFatigueTotal,
+                name: 'Overall total time fatigue constraint',
+                info: 'Add constraints where workers cannot perform over a limit of time overall for all tasks',
+                comp: <ConstraintAdder type={ConstraintType.overallTimeFatigueTotal} />
+            },
         ]
     }
 
     private renderConstraint = ({ id, name, info, comp } : ConstraintsDetails) => {
         return (
-            <ExpansionPanel key={id} expanded={this.isExpanded(id)} onChange={this.handleChange(id)}>
+            <ExpansionPanel
+                key={id}
+                expanded={this.isExpanded(id)}
+                onChange={this.handleChange(id)}
+                classes={{
+                    expanded: this.props.classes.expandedPanel,
+                }}
+            >
                 <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography variant="title">{name}</Typography>
                 </ExpansionPanelSummary>

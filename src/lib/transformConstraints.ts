@@ -77,24 +77,34 @@ export function transformMustCannotAtLeastConstraints(groups : WorkerTaskGroup[]
 export function transformTimeFatigueTotalConstraints(groups : WorkerTaskGroup[]) {
     const constraintsObj = {}
 
-    groups.forEach(({workers, tasks, limit }) => {
+    groups.forEach(({workers, ...other }) => {
         workers.forEach(workerId => {
             if (constraintsObj[workerId]) {
                 constraintsObj[workerId] = [
                     ...constraintsObj[workerId],
                     {
-                        tasks,
-                        limit,
+                        ...other,
                     }
                 ]
             } else {
                 constraintsObj[workerId] = [
                     {
-                        tasks,
-                        limit,
+                        ...other
                     }
                 ]
             }
+        })
+    })
+
+    return constraintsObj
+}
+
+export function transformOverallTimeFatigueTotalConstraints(groups : WorkerTaskGroup[]) {
+    const constraintsObj = {}
+
+    groups.forEach(({workers, limit }) => {
+        workers.forEach(workerId => {
+            constraintsObj[workerId] = { limit }
         })
     })
 

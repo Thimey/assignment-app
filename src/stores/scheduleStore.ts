@@ -2,11 +2,16 @@ import { observable, action, computed, values, ObservableMap } from 'mobx'
 
 import { getTimeOverlayPx } from '../lib/time'
 import taskStore from './taskStore'
-import { Schedule, Time, Task } from '../data'
+import { Schedule, Time, Task, Worker } from '../data'
 
 export interface TimeTask {
     time : Time
     task : Task
+}
+
+export interface TimeWorker {
+    time : Time
+    worker : Worker
 }
 
 class ScheduleStore {
@@ -70,6 +75,7 @@ class ScheduleStore {
                     },
                 })),
         ]), [])
+
     }
 
     @observable
@@ -81,7 +87,6 @@ class ScheduleStore {
     }
 
 }
-
 
 const instance = new ScheduleStore()
 

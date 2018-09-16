@@ -5,7 +5,13 @@ export interface ScheduledTaskForSolver extends Pick<ScheduledTask, 'id' | 'star
     task : Task
 }
 
-export type Solution = Record<string, number[]>
+export interface SolutionByTask {
+    [scheduleTaskId : string] : number[] // workerIds
+}
+
+export interface SolutionByWorker {
+    [workerId : string] : string[] // workerIds
+}
 
 export interface WorkerOnlyConstraint<T> {
     [workerId : string] : T
@@ -20,6 +26,7 @@ export interface WorkerTaskConstraint<T> {
 export type MustWorkConstraint = WorkerTaskConstraint<boolean>
 export type CannotWorkConstraint = WorkerTaskConstraint<boolean>
 export type AtLeastWorkConstraint = WorkerTaskConstraint<boolean>
+export type OverallTimeFatigueTotalConstraint = WorkerOnlyConstraint<number>
 
 export type TimeFatigueConstraint = WorkerOnlyConstraint<{
     taskIds : number[]
@@ -37,6 +44,7 @@ export enum ConstraintType {
     cannotWork = 'cannotWork',
     mustWork = 'mustWork',
     atLeastWork = 'atLeastWork',
+    overallTimeFatigueTotal = 'overallTimeFatigueTotal',
     timeFatigueTotal = 'timeFatigueTotal',
     timeFatigueConsecutive = 'timeFatigueConsecutive',
     unavailable = 'unavailable',
@@ -48,9 +56,11 @@ export type Constraint =
     TimeUnavailableConstraint |
     CannotWorkConstraint |
     MustWorkConstraint |
-    AtLeastWorkConstraint
+    AtLeastWorkConstraint |
+    OverallTimeFatigueTotalConstraint
 
 export interface Constraints {
+    overallTimeFatigueTotal ?: OverallTimeFatigueTotalConstraint[]
     timeFatigueTotal ?: TimeFatigueConstraint[]
     timeFatigueConsecutive ?: TimeFatigueConstraint[]
     unavailable ?: TimeUnavailableConstraint[]
@@ -61,7 +71,8 @@ export interface Constraints {
 
 export interface SolverResponse {
     status : boolean
-    solution : Solution | null
+    solutionByTask : SolutionByTask | null
+    solutionByWorker : SolutionByWorker | null
     objectiveValue : number | null
 }
 

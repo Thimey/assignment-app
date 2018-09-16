@@ -50,7 +50,7 @@ const styles = (theme : Theme) => createStyles({
         width: '100%',
         cursor: 'pointer',
         '&:hover': {
-            backgroundColor: theme.palette.grey["100"],
+            backgroundColor: theme.palette.grey["50"],
         },
     },
 })
@@ -85,15 +85,14 @@ class ScheduleMatrix extends React.Component<Props> {
             scheduledTask={scheduledTask}
             onDelete={deleteScheduledTask}
             width={width}
+            view='worker'
         />
 
     private renderCell = (cellData : TimeTask) => (
         <div
             onClick={this.handleCellClick(cellData)}
             className={this.props.classes.cellContainer}
-        >
-
-        </div>
+        />
     )
 
     private handleCloseTaskToSchedule = () =>

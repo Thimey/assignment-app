@@ -21,7 +21,7 @@ import costStore from '../stores/costStore'
 import CostCell from '../components/CostCell'
 import NewButton from '../components/NewButton'
 import CostMatrixList from '../components/CostMatrixList'
-import WorkerCostCard from '../components/WorkerCostCard'
+import WorkerCostCard from '../components/WorkerCard'
 import HeaderCell from '../components/HeaderCell'
 
 import saveCostMatrix from '../actions/saveCostMatrix'

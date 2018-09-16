@@ -1,8 +1,11 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles, Typography } from '@material-ui/core'
+import WorkerIcon from '@material-ui/icons/SentimentSatisfied'
+import ScheduleIcon from '@material-ui/icons/Schedule'
 
 import ScheduleMatrix from './views/ScheduleMatrix'
+import AllocatedWorkerMatrix from './views/AllocatedWorkerMatrix'
 import AllocateSchedule from './views/AllocateSchedule'
 
 import {
@@ -18,11 +21,12 @@ import scheduleStore from './stores/scheduleStore'
 import workerStore from './stores/workerStore'
 import costStore from './stores/costStore'
 import constraintStore from './stores/constraintStore'
+import allocationSolutionStore from './stores/allocationSolutionStore'
 
 import AllocationLoader from './components/AllocationLoader'
 
 export enum Display {
-    costMatrix = 'costMatrix',
+    allocatedWorkers = 'allocatedWorkers',
     schedule = 'schedule',
 }
 
@@ -78,6 +82,20 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
     private getCostMatrix = async () => costStore.addCostMatrices(await getCostMatrix())
     private getConstraints = async () => constraintStore.addConstraints(await getConstraints())
 
+    private toggleMatrixDisplay = () => this.setState((prevState : State) => ({
+        display: prevState.display === Display.schedule
+            ? Display.allocatedWorkers
+            : Display.schedule
+    }))
+
+    private renderToggleIcon() {
+        if (this.state.display === Display.schedule) {
+            return <WorkerIcon onClick={this.toggleMatrixDisplay} />
+        } else {
+            return <ScheduleIcon onClick={this.toggleMatrixDisplay} />
+        }
+    }
+
     public render() {
         const { display } = this.state
         const { classes } = this.props
@@ -95,6 +113,11 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                             scheduleStore.selectedSchedule &&
                             <AllocateSchedule />
                         }
+
+                        {
+                            allocationSolutionStore.solutionStatus &&
+                            this.renderToggleIcon()
+                        }
                     </div>
                 </div>
 
@@ -102,6 +125,11 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                     {
                         display === Display.schedule &&
                         <ScheduleMatrix />
+                    }
+
+                    {
+                        display === Display.allocatedWorkers &&
+                        <AllocatedWorkerMatrix />
                     }
                 </div>
 

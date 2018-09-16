@@ -3,6 +3,7 @@ import { observer } from 'mobx-react'
 import classnames from 'classnames'
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
 
 import WorkerAvatar from './WorkerAvatar'
 import allocationSolutionStore from '../stores/allocationSolutionStore'
@@ -17,7 +18,7 @@ const styles = (theme: Theme) => createStyles({
     },
     innerContainer: {
         height: '95%',
-        width: '100%',
+        width: '95%',
         borderRadius: '5px',
         display: 'flex',
         flexWrap: 'wrap',
@@ -28,7 +29,7 @@ const styles = (theme: Theme) => createStyles({
         backgroundColor: theme.palette.primary.light,
     },
     allocated: {
-        backgroundColor: theme.palette.grey["100"],
+        backgroundColor: theme.palette.grey["200"],
     },
     avatar: {
         width: 45,
@@ -41,6 +42,7 @@ export interface Props extends WithStyles<typeof styles> {
     scheduledTask : ScheduledTask
     onDelete ?: (scheduledTaskId : string) => void
     width : number
+    view : 'worker' | 'task'
 }
 
 export interface State {
@@ -59,7 +61,7 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
         }
     }
 
-    private renderAllocation = (worker : Worker | undefined) => {
+    private renderWorkerAllocation = (worker : Worker | undefined) => {
         if (!worker) {
             return null
         }
@@ -78,9 +80,13 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
             classes,
             onDelete,
             scheduledTask,
+            view,
+            task,
         } = this.props
 
-        const allocated = allocationSolutionStore.getAllocated(scheduledTask.id)
+        const allocated = view === 'worker'
+            ? allocationSolutionStore.getScheduledTaskAllocated(scheduledTask.id)
+            : []
 
         return (
             <div
@@ -100,8 +106,13 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
                     }
 
                     {
-                        allocated &&
-                        allocated.map(this.renderAllocation)
+                        allocated && view === 'worker' &&
+                        allocated.map(this.renderWorkerAllocation)
+                    }
+
+                    {
+                        view === 'task' &&
+                        <Typography>{ task.name }</Typography>
                     }
                 </div>
             </div>

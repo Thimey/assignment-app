@@ -1,9 +1,12 @@
-import { observable, action, ObservableMap } from 'mobx'
+import { observable, action, ObservableMap, computed } from 'mobx'
 
 import workerStore from './workerStore'
-import { Worker } from '../data'
+import scheduleStore from './scheduleStore'
+import { Worker, ScheduledTask } from '../data'
 
-import { Solution } from '../solver'
+import { getTimeOverlayPx } from '../lib/time'
+
+import { SolutionByTask, SolutionByWorker } from '../solver'
 
 export enum SolveOption {
     noOptimisation = 'noOptimisation',
@@ -12,7 +15,8 @@ export enum SolveOption {
 }
 
 class AllocationSolutionStore {
-    private solutionMap : ObservableMap<string, number[]> = observable.map()
+    private solutionByTaskMap : ObservableMap<string, number[]> = observable.map()
+    private solutionByWorkerMap : ObservableMap<string, string[]> = observable.map()
 
     @observable
     public solutionScheduleId : number | null = null
@@ -56,27 +60,35 @@ class AllocationSolutionStore {
     public purgeSolution() {
         this.solutionStatus = null
         this.objectiveValue = null
-        this.solutionMap.clear()
+        this.solutionByTaskMap.clear()
+        this.solutionByWorkerMap.clear()
     }
 
     @action.bound
     public setSolution({
         objectiveValue,
         status,
-        solution,
+        solutionByWorker,
+        solutionByTask,
         selectedScheduleId,
     } : {
         objectiveValue : number | null
         status : boolean
-        solution : Solution | null,
+        solutionByWorker : SolutionByWorker | null,
+        solutionByTask : SolutionByTask | null,
         selectedScheduleId : number
     }) {
-        if (!solution) {
-            this.solutionMap.clear()
+        if (!status) {
+            this.solutionByTaskMap.clear()
             this.solutionScheduleId = null
         } else {
-            Object.keys(solution).forEach(schTaskId => {
-                this.solutionMap.set(schTaskId, solution[schTaskId])
+            Object.keys(solutionByTask!).forEach(schTaskId => {
+                this.solutionByTaskMap.set(schTaskId, solutionByTask![schTaskId])
+                this.solutionScheduleId = selectedScheduleId
+            })
+
+            Object.keys(solutionByWorker!).forEach(workerId => {
+                this.solutionByWorkerMap.set(workerId, solutionByWorker![workerId])
                 this.solutionScheduleId = selectedScheduleId
             })
         }
@@ -85,12 +97,55 @@ class AllocationSolutionStore {
         this.objectiveValue = objectiveValue
     }
 
-    public getAllocated(scheduleTaskId : string) {
-        const workerIds = this.solutionMap.get(scheduleTaskId)
+    public getScheduledTaskAllocated(scheduleTaskId : string) {
+        const workerIds = this.solutionByTaskMap.get(scheduleTaskId)
 
         return workerIds
             ?  workerIds.map(workerStore.getWorker)
             : null
+    }
+
+    public getWorkerAllocated(workerId : number, scheduledTasks : ScheduledTask[]) {
+        const scheduledTaskIds = this.solutionByWorkerMap.get(String(workerId))
+
+        if (scheduledTaskIds) {
+            return scheduledTaskIds.map(schId => scheduledTasks.find(({ id }) => id === schId))
+        }
+
+        return []
+    }
+
+    @computed
+    public get allocatedScheduledTasks() {
+        const selectedSchedule = scheduleStore.selectedSchedule
+
+        // if (selectedSchedule) {
+        //     const scheduledTasks = selectedSchedule.tasks
+        //     workerStore.workers.map(worker =>
+        //         this.getWorkerAllocated(worker.id, scheduledTasks)
+        //     )
+        // }
+
+        if (selectedSchedule) {
+            return workerStore.workers.reduce((acc, worker) => ([
+                ...acc,
+                selectedSchedule.tasks
+                    .filter(schTask => {
+                        const allocatedSchTaskIds = this.solutionByWorkerMap.get(String(worker.id))
+
+                        return allocatedSchTaskIds && allocatedSchTaskIds.indexOf(schTask.id) >= 0
+                    })
+                    .map(scheduledTask => ({
+                        ...getTimeOverlayPx(scheduledTask),
+                        data: {
+                            worker,
+                            scheduledTask
+                        },
+                    })),
+            ]), [])
+        }
+
+        return []
     }
 }
 
