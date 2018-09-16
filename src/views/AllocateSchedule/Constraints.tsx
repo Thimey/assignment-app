@@ -11,7 +11,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ConstraintType } from '../../solver'
 import saveConstraints from '../../actions/saveConstraints'
 
-import MustCannotConstraint from './MustCannotConstraint'
+import ConstraintAdder from './ConstraintAdder'
 
 const styles = createStyles({
     container: {
@@ -47,7 +47,7 @@ export interface ConstraintsDetails {
 
 
 class Constraints extends React.Component<Props, State> {
-    state : State = { expanded: [ConstraintType.mustWork] }
+    state : State = { expanded: [] }
 
     private handleChange = (constraint : string) => (_e : any, expanded : boolean) => {
         this.setState((prevState : State) => ({
@@ -83,13 +83,25 @@ class Constraints extends React.Component<Props, State> {
                 id: ConstraintType.cannotWork,
                 name: 'Cannot assign constraint',
                 info: 'Add constraints where workers CANNOT perform tasks',
-                comp: <MustCannotConstraint type={ConstraintType.cannotWork} />
+                comp: <ConstraintAdder type={ConstraintType.cannotWork} />
             },
             {
                 id: ConstraintType.mustWork,
                 name: 'Must assign constraint',
                 info: 'Add constraints where workers MUST perform tasks',
-                comp: <MustCannotConstraint type={ConstraintType.mustWork} />
+                comp: <ConstraintAdder type={ConstraintType.mustWork} />
+            },
+            {
+                id: ConstraintType.atLeastWork,
+                name: 'At least assign constraint',
+                info: 'Add constraints where workers MUST perform task(s) at LEAST once',
+                comp: <ConstraintAdder type={ConstraintType.atLeastWork} />
+            },
+            {
+                id: ConstraintType.timeFatigueTotal,
+                name: 'Total time fatigue constraint',
+                info: 'Add constraints where workers cannot perform over a limit of time for a task(s)',
+                comp: <ConstraintAdder type={ConstraintType.timeFatigueTotal} />
             },
         ]
     }

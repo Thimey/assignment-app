@@ -7,10 +7,18 @@ import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Switch from '@material-ui/core/Switch'
+import TextField from '@material-ui/core/TextField'
+import InputAdornment from '@material-ui/core/InputAdornment'
 import RemoveIcon from '@material-ui/icons/Delete'
 
 import { ConstraintType } from '../../solver'
-import { SavedMustCannotWorkConstraint, Worker, Task } from '../../data'
+import {
+    SavedConstraintType,
+    SavedMustCannotWorkConstraint,
+    SavedTimeFatigueTotalConstraint,
+    Worker,
+    Task,
+} from '../../data'
 
 import WorkerPicker from '../../components/WorkerPicker'
 import TaskPicker from '../../components/TaskPicker'
@@ -54,7 +62,7 @@ const styles = createStyles({
 
 
 export interface Props extends WithStyles<typeof styles> {
-    type : ConstraintType.mustWork | ConstraintType.cannotWork
+    type : ConstraintType
     color ?: string
 }
 
@@ -64,13 +72,7 @@ export interface State {
 @observer
 class MustCannotConstraint extends React.Component<Props, State> {
     private addNewConstraint = (_e : any) => {
-        constraintStore.addNewConstraint(
-            this.props.type,
-            {
-                tasks: [],
-                workers: [],
-            }
-        )
+        constraintStore.addNewConstraint(this.props.type)
     }
 
     private updateWorkers = (index: number, constraint : SavedMustCannotWorkConstraint) => (selectedWorkerIds : Worker['id'][]) => {
@@ -95,7 +97,7 @@ class MustCannotConstraint extends React.Component<Props, State> {
         )
     }
 
-    private toggleDisable = (index: number, constraint : SavedMustCannotWorkConstraint) => (e : any) => {
+    private toggleDisable = (index: number, constraint : SavedMustCannotWorkConstraint | SavedTimeFatigueTotalConstraint) => (e : any) => {
         constraintStore.updateConstraint(
             this.props.type,
             index,
@@ -110,8 +112,76 @@ class MustCannotConstraint extends React.Component<Props, State> {
         constraintStore.deleteConstraint(this.props.type, index)
     }
 
+    private handleTimeLimitChange = (index : number, constraint : SavedTimeFatigueTotalConstraint | SavedTimeFatigueTotalConstraint) => (e : any) => {
+        constraintStore.updateConstraint(
+            this.props.type,
+            index,
+            {
+                ...constraint,
+                limit: parseInt(e.target.value, 10),
+            }
+        )
+    }
+
+
+    private renderTitle1() {
+        const { type } = this.props
+        let title = ''
+        if (type === ConstraintType.mustWork) {
+            title = 'must perform all'
+        } else if (type === ConstraintType.cannotWork) {
+            title = 'cannot perform'
+        } else if (type === ConstraintType.timeFatigueTotal) {
+            title = 'limit of'
+        } else if (type === ConstraintType.atLeastWork) {
+            title = 'at least once'
+        } else {
+            return null
+        }
+
+        return (
+            <Typography variant="title">
+                { title }
+            </Typography>
+        )
+    }
+
+    private renderTitle2() {
+        if (this.props.type !== ConstraintType.timeFatigueTotal) {
+            return null
+        }
+
+        return (
+            <Typography variant="title">
+                in
+            </Typography>
+        )
+    }
+
+    private renderLimitField(index : number, constraint : SavedConstraintType) {
+        if (this.props.type !== ConstraintType.timeFatigueTotal) {
+            return null
+        }
+
+        const fatigueConstraint = constraint as SavedTimeFatigueTotalConstraint
+
+        return (
+            <TextField
+                type="number"
+                inputProps={{
+                    min: 1,
+                }}
+                onChange={this.handleTimeLimitChange(index, fatigueConstraint)}
+                value={fatigueConstraint.limit}
+                InputProps={{
+                    endAdornment: <InputAdornment position="end">mins</InputAdornment>,
+                }}
+            />
+        )
+    }
+
     private renderConstraint = (constraint : SavedMustCannotWorkConstraint, index : number) => {
-        const { classes, color, type } = this.props
+        const { classes, color } = this.props
 
         return (
             <div
@@ -143,13 +213,17 @@ class MustCannotConstraint extends React.Component<Props, State> {
                             />
                     </div>
 
-                    <Typography variant="title">
-                        {
-                            type === ConstraintType.mustWork
-                            ? 'must'
-                            : 'cannot'
-                        } perform
-                    </Typography>
+                    {
+                        this.renderTitle1()
+                    }
+
+                    {
+                        this.renderLimitField(index, constraint)
+                    }
+
+                    {
+                        this.renderTitle2()
+                    }
 
                     <div className={classes.taskPickerContainer}>
                         <TaskPicker
@@ -157,7 +231,6 @@ class MustCannotConstraint extends React.Component<Props, State> {
                             onSelect={this.updateTasks(index, constraint)}
                             />
                     </div>
-
                 </Paper>
             </div>
         )
@@ -175,6 +248,10 @@ class MustCannotConstraint extends React.Component<Props, State> {
             constraints = constraintStore.mustWorkConstraints
         } else if (type === ConstraintType.cannotWork) {
             constraints = constraintStore.cannotWorkConstraints
+        } else if (type === ConstraintType.atLeastWork) {
+            constraints = constraintStore.atLeastWorkConstraints
+        } else if (type === ConstraintType.timeFatigueTotal) {
+            constraints = constraintStore.timeFatigueTotalConstraints
         }
 
         return (

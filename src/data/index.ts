@@ -53,9 +53,26 @@ export interface SavedMustCannotWorkConstraint extends SavedConstraintBase {
     tasks : number[]
 }
 
+export interface SavedAtLeastWorkConstraint extends SavedConstraintBase {
+    tasks : number[]
+}
+
+export interface SavedTimeFatigueTotalConstraint extends SavedConstraintBase {
+    tasks : number[]
+    limit : number
+}
+
+export type SavedConstraintType =
+    SavedMustCannotWorkConstraint |
+    SavedAtLeastWorkConstraint |
+    SavedTimeFatigueTotalConstraint
+
+
 export interface SavedConstraints {
     mustWork: SavedMustCannotWorkConstraint[]
     cannotWork : SavedMustCannotWorkConstraint[]
+    atLeastWork : SavedAtLeastWorkConstraint[]
+    timeFatigueTotal : SavedTimeFatigueTotalConstraint[]
 }
 
 const getUrl = (path : string) => `http://localhost:3000${path}`

@@ -46,12 +46,10 @@ export function flattenConstraints(groups : WorkerTaskGroup[]) {
         ...flattenGroup(group),
     ]), [])
 
-    //  filter duplicates
-
     return flattenedGroup
 }
 
-function transformConstraintsToObj(groups : WorkerTaskGroup[]) {
+export function transformMustCannotAtLeastConstraints(groups : WorkerTaskGroup[]) {
     const constraintsObj = {}
 
     groups.forEach(({workers, tasks, ...other }) => {
@@ -76,4 +74,29 @@ function transformConstraintsToObj(groups : WorkerTaskGroup[]) {
     return constraintsObj
 }
 
-export default transformConstraintsToObj
+export function transformTimeFatigueTotalConstraints(groups : WorkerTaskGroup[]) {
+    const constraintsObj = {}
+
+    groups.forEach(({workers, tasks, limit }) => {
+        workers.forEach(workerId => {
+            if (constraintsObj[workerId]) {
+                constraintsObj[workerId] = [
+                    ...constraintsObj[workerId],
+                    {
+                        tasks,
+                        limit,
+                    }
+                ]
+            } else {
+                constraintsObj[workerId] = [
+                    {
+                        tasks,
+                        limit,
+                    }
+                ]
+            }
+        })
+    })
+
+    return constraintsObj
+}

@@ -7,58 +7,56 @@ export interface ScheduledTaskForSolver extends Pick<ScheduledTask, 'id' | 'star
 
 export type Solution = Record<string, number[]>
 
-export interface TaskFatigueConstraint {
-    workerId : number
-    taskId : number
-    limit : number
+export interface WorkerOnlyConstraint<T> {
+    [workerId : string] : T
 }
 
-export interface TimeFatigueConstraint {
-    workerId : number
-    limit : number
+export interface WorkerTaskConstraint<T> {
+    [workerId : string] : {
+        [taskId : string] : boolean
+    }
 }
 
-export interface TimeUnavailableConstraint {
-    workerId : number
+export type MustWorkConstraint = WorkerTaskConstraint<boolean>
+export type CannotWorkConstraint = WorkerTaskConstraint<boolean>
+export type AtLeastWorkConstraint = WorkerTaskConstraint<boolean>
+
+export type TimeFatigueConstraint = WorkerOnlyConstraint<{
+    taskIds : number[]
+    limit : number
+}>
+
+export type TimeUnavailableConstraint = WorkerOnlyConstraint<{
     start : Time
     end : Time
-}
-
-export interface CannotWorkConstraint {
-    workerId : number
-    taskId : number
-}
-
-export interface MustWorkConstraint {
-    workerId : number
-    taskId : number
-}
+}>
 
 export enum ConstraintType {
     sameTask = 'sameTask',
     sameTime = 'sameTime',
     cannotWork = 'cannotWork',
     mustWork = 'mustWork',
-    fatigueTotal = 'fatigueTotal',
-    fatigueConsecutive = 'fatigueConsecutive',
+    atLeastWork = 'atLeastWork',
+    timeFatigueTotal = 'timeFatigueTotal',
+    timeFatigueConsecutive = 'timeFatigueConsecutive',
     unavailable = 'unavailable',
+    fifa = 'fifa'
 }
 
-export type Constraint = TaskFatigueConstraint |
-    TaskFatigueConstraint |
+export type Constraint =
     TimeFatigueConstraint |
     TimeUnavailableConstraint |
     CannotWorkConstraint |
-    MustWorkConstraint
+    MustWorkConstraint |
+    AtLeastWorkConstraint
 
 export interface Constraints {
-    taskFatigueTotal ?: TaskFatigueConstraint[]
     timeFatigueTotal ?: TimeFatigueConstraint[]
-    taskFatigueConsecutive ?: TaskFatigueConstraint[]
     timeFatigueConsecutive ?: TimeFatigueConstraint[]
     unavailable ?: TimeUnavailableConstraint[]
     cannotWork ?: CannotWorkConstraint[]
     mustWork ?: MustWorkConstraint[]
+    atLeastWork ?: AtLeastWorkConstraint[]
 }
 
 export interface SolverResponse {

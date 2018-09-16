@@ -1,21 +1,31 @@
 import { action, observable, IObservableArray, toJS } from 'mobx'
 
 import { ConstraintType, Constraints } from '../solver'
-import transformConstraints from '../lib/tranformConstraints'
+import {
+    transformMustCannotAtLeastConstraints,
+    transformTimeFatigueTotalConstraints
+} from '../lib/transformConstraints'
 
 import {
     SavedMustCannotWorkConstraint,
+    SavedTimeFatigueTotalConstraint,
+    SavedAtLeastWorkConstraint,
     SavedConstraintBase,
+    SavedConstraints,
 } from '../data'
 
 class ConstraintStore {
     public mustWorkConstraints : IObservableArray<SavedMustCannotWorkConstraint> = observable([])
     public cannotWorkConstraints : IObservableArray<SavedMustCannotWorkConstraint> = observable([])
+    public atLeastWorkConstraints : IObservableArray<SavedAtLeastWorkConstraint> = observable([])
+    public timeFatigueTotalConstraints : IObservableArray<SavedTimeFatigueTotalConstraint> = observable([])
 
     @action.bound
-    public addConstraints(constraints : any) {
+    public addConstraints(constraints : SavedConstraints) {
         this.mustWorkConstraints.replace(constraints.mustWork)
         this.cannotWorkConstraints.replace(constraints.cannotWork)
+        this.atLeastWorkConstraints.replace(constraints.atLeastWork)
+        this.timeFatigueTotalConstraints.replace(constraints.timeFatigueTotal)
     }
 
     @action.bound
@@ -24,15 +34,40 @@ class ConstraintStore {
             this.mustWorkConstraints[index] = data
         } else if (type === ConstraintType.cannotWork) {
             this.cannotWorkConstraints[index] = data
+        } else if (type === ConstraintType.atLeastWork) {
+            this.atLeastWorkConstraints[index] = data
+        } else if (type === ConstraintType.timeFatigueTotal) {
+            this.timeFatigueTotalConstraints[index] = data
         }
     }
 
     @action.bound
-    public addNewConstraint(type : ConstraintType, data : any) {
+    public addNewConstraint(type : ConstraintType) {
         if (type === ConstraintType.mustWork) {
-            this.mustWorkConstraints.push(data)
+            this.mustWorkConstraints.push({
+                workers: [],
+                tasks: [],
+                disabled: false,
+            })
         } else if (type === ConstraintType.cannotWork) {
-            this.cannotWorkConstraints.push(data)
+            this.cannotWorkConstraints.push({
+                workers: [],
+                tasks: [],
+                disabled: false,
+            })
+        } else if (type === ConstraintType.atLeastWork) {
+            this.atLeastWorkConstraints.push({
+                workers: [],
+                tasks: [],
+                disabled: false,
+            })
+        } else if (type === ConstraintType.timeFatigueTotal) {
+            this.timeFatigueTotalConstraints.push({
+                workers: [],
+                tasks: [],
+                limit: 30,
+                disabled: false,
+            })
         }
     }
 
@@ -42,19 +77,21 @@ class ConstraintStore {
             this.mustWorkConstraints.replace(this.mustWorkConstraints.filter((_, i) => i !== index))
         } else if (type === ConstraintType.cannotWork) {
             this.cannotWorkConstraints.replace(this.cannotWorkConstraints.filter((_, i) => i !== index))
+        } else if (type === ConstraintType.atLeastWork) {
+            this.atLeastWorkConstraints.replace(this.atLeastWorkConstraints.filter((_, i) => i !== index))
+        } else if (type === ConstraintType.timeFatigueTotal) {
+            this.timeFatigueTotalConstraints.replace(this.timeFatigueTotalConstraints.filter((_, i) => i !== index))
         }
     }
 
     private filterDisabled = ({ disabled } : SavedConstraintBase) => !disabled
 
-    private prepareConstraintsForSolver(constraints : SavedConstraintBase[]) {
-        return transformConstraints(constraints.filter(this.filterDisabled))
-    }
-
     public getConstraintsForSolver() : Constraints {
         return {
-            mustWork: this.prepareConstraintsForSolver(toJS(this.mustWorkConstraints)) as any,
-            cannotWork: this.prepareConstraintsForSolver(toJS(this.cannotWorkConstraints)) as any,
+            mustWork: transformMustCannotAtLeastConstraints(toJS(this.mustWorkConstraints).filter(this.filterDisabled)) as any,
+            cannotWork: transformMustCannotAtLeastConstraints(toJS(this.cannotWorkConstraints).filter(this.filterDisabled)) as any,
+            atLeastWork: transformMustCannotAtLeastConstraints(toJS(this.atLeastWorkConstraints).filter(this.filterDisabled)) as any,
+            timeFatigueTotal: transformTimeFatigueTotalConstraints(toJS(this.timeFatigueTotalConstraints).filter(this.filterDisabled)) as any,
         }
     }
 
@@ -62,6 +99,8 @@ class ConstraintStore {
         return {
             mustWork: toJS(this.mustWorkConstraints) as any,
             cannotWork: toJS(this.cannotWorkConstraints) as any,
+            atLeastWork: toJS(this.atLeastWorkConstraints) as any,
+            timeFatigueTotal: toJS(this.timeFatigueTotalConstraints) as any,
         }
     }
 }
