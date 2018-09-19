@@ -12,6 +12,9 @@ export enum WorkerTags {
     ux = 'ux',
     cs = 'cs',
     marketing = 'marketing',
+    fifa = 'fifa',
+    marioKart = 'marioKart',
+    coffee = 'coffee'
 }
 
 export interface Worker {
