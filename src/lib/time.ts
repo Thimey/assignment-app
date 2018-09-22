@@ -71,3 +71,10 @@ export function renderTime(time : Time) {
 
     return `${time.hour} : ${min}`
 }
+
+export function renderTimeToTime(time : string) {
+    const [hour, min] = time.split(':')
+        .map((t : string) => parseInt(t.trim(), 10))
+
+    return { hour, min }
+}

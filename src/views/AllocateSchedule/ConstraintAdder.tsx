@@ -17,12 +17,15 @@ import {
     SavedMustCannotWorkConstraint,
     SavedTimeFatigueTotalConstraint,
     SavedAtLeastWorkConstraint,
+    SavedUnavailableConstraint,
     Worker,
     Task,
+    Range,
 } from '../../data'
 
 import WorkerPicker from '../../components/WorkerPicker'
 import TaskPicker from '../../components/TaskPicker'
+import TimeRangePicker from '../../components/TimeRangePicker'
 import constraintStore from '../../stores/constraintStore'
 
 const styles = createStyles({
@@ -124,6 +127,17 @@ class MustCannotConstraint extends React.Component<Props, State> {
         )
     }
 
+    private handleUnavailableTimeRangeChange = (index: number, constraint: SavedUnavailableConstraint) => (range : Range) => {
+        constraintStore.updateConstraint(
+            this.props.type,
+            index,
+            {
+                ...constraint,
+                range,
+            }
+        )
+    }
+
 
     private renderTitle1() {
         const { type } = this.props
@@ -140,6 +154,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
             title = 'overall limit of'
         } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
             title = 'consecutive limit of'
+        } else if (type === ConstraintType.unavailable) {
+            title = 'unavailable between'
         } else {
             return null
         }
@@ -192,7 +208,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
     private renderTaskPicker(index : number, constraint : SavedConstraintType) {
         if (
             this.props.type === ConstraintType.overallTimeFatigueTotal ||
-            this.props.type === ConstraintType.overallTimeFatigueConsecutive
+            this.props.type === ConstraintType.overallTimeFatigueConsecutive ||
+            this.props.type === ConstraintType.unavailable
         ) {
             return null
         }
@@ -207,6 +224,21 @@ class MustCannotConstraint extends React.Component<Props, State> {
                     />
             </div>
         )
+    }
+
+    private renderTimeRangePicker(index : number, constraint : SavedConstraintType) {
+        if (this.props.type === ConstraintType.unavailable) {
+            const { range } = constraint as SavedUnavailableConstraint
+
+            return (
+                <TimeRangePicker
+                    onRangeChange={this.handleUnavailableTimeRangeChange(index, constraint as SavedUnavailableConstraint)}
+                    range={range}
+                />
+            )
+        }
+
+        return null
     }
 
     private renderConstraint = (constraint : SavedMustCannotWorkConstraint, index : number) => {
@@ -257,6 +289,10 @@ class MustCannotConstraint extends React.Component<Props, State> {
                     {
                         this.renderTaskPicker(index, constraint)
                     }
+
+                    {
+                        this.renderTimeRangePicker(index, constraint)
+                    }
                 </Paper>
             </div>
         )
@@ -282,6 +318,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
             constraints = constraintStore.overallTimeFatigueTotalConstraints
         } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
             constraints = constraintStore.overallTimeFatigueConsecutiveConstraints
+        } else if (type === ConstraintType.unavailable) {
+            constraints = constraintStore.unavailableConstraints
         }
 
         return (

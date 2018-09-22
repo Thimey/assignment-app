@@ -6,6 +6,7 @@ import {
     transformTimeFatigueTotalConstraints,
     transformOverallTimeFatigueTotalConstraints,
     transformConsecutiveFatigueConstraints,
+    transformUnavailableConstraints,
 } from '../lib/transformConstraints'
 
 import {
@@ -16,6 +17,7 @@ import {
     SavedAtLeastWorkConstraint,
     SavedConstraintBase,
     SavedConstraints,
+    SavedUnavailableConstraint,
 } from '../data'
 
 class ConstraintStore {
@@ -25,6 +27,7 @@ class ConstraintStore {
     public timeFatigueTotalConstraints : IObservableArray<SavedTimeFatigueTotalConstraint> = observable([])
     public overallTimeFatigueTotalConstraints : IObservableArray<SavedOverallTimeFatigueTotalConstraint> = observable([])
     public overallTimeFatigueConsecutiveConstraints : IObservableArray<SavedOverallTimeFatigueConsecutiveConstraint> = observable([])
+    public unavailableConstraints : IObservableArray<SavedUnavailableConstraint> = observable([])
 
     @action.bound
     public addConstraints(constraints : SavedConstraints) {
@@ -34,6 +37,7 @@ class ConstraintStore {
         this.timeFatigueTotalConstraints.replace(constraints.timeFatigueTotal)
         this.overallTimeFatigueTotalConstraints.replace(constraints.overallTimeFatigueTotal)
         this.overallTimeFatigueConsecutiveConstraints.replace(constraints.overallTimeFatigueConsecutive)
+        this.unavailableConstraints.replace(constraints.unavailable)
     }
 
     @action.bound
@@ -50,6 +54,8 @@ class ConstraintStore {
             this.overallTimeFatigueTotalConstraints[index] = data
         } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
             this.overallTimeFatigueConsecutiveConstraints[index] = data
+        } else if (type === ConstraintType.unavailable) {
+            this.unavailableConstraints[index] = data
         }
     }
 
@@ -92,6 +98,15 @@ class ConstraintStore {
                 limit: 30,
                 disabled: false,
             })
+        } else if (type === ConstraintType.unavailable) {
+            this.unavailableConstraints.push({
+                workers: [],
+                range: {
+                    startTime: { hour: 9, min: 0 },
+                    endTime: { hour: 9, min: 0 },
+                },
+                disabled: false,
+            })
         }
     }
 
@@ -109,6 +124,8 @@ class ConstraintStore {
             this.overallTimeFatigueTotalConstraints.replace(this.overallTimeFatigueTotalConstraints.filter((_, i) => i !== index))
         } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
             this.overallTimeFatigueConsecutiveConstraints.replace(this.overallTimeFatigueConsecutiveConstraints.filter((_, i) => i !== index))
+        } else if (type === ConstraintType.unavailable) {
+            this.unavailableConstraints.replace(this.unavailableConstraints.filter((_, i) => i !== index))
         }
     }
 
@@ -122,6 +139,7 @@ class ConstraintStore {
             timeFatigueTotal: transformTimeFatigueTotalConstraints(toJS(this.timeFatigueTotalConstraints).filter(this.filterDisabled)) as any,
             overallTimeFatigueTotal: transformOverallTimeFatigueTotalConstraints(toJS(this.overallTimeFatigueTotalConstraints).filter(this.filterDisabled)) as any,
             overallTimeFatigueConsecutive: transformConsecutiveFatigueConstraints(toJS(this.overallTimeFatigueConsecutiveConstraints).filter(this.filterDisabled)) as any,
+            unavailable: transformUnavailableConstraints(toJS(this.unavailableConstraints).filter(this.filterDisabled)) as any,
         }
     }
 
@@ -133,6 +151,7 @@ class ConstraintStore {
             timeFatigueTotal: toJS(this.timeFatigueTotalConstraints) as any,
             overallTimeFatigueTotal: toJS(this.overallTimeFatigueTotalConstraints) as any,
             overallTimeFatigueConsecutive: toJS(this.overallTimeFatigueConsecutiveConstraints) as any,
+            unavailable: toJS(this.unavailableConstraints) as any,
         }
     }
 }

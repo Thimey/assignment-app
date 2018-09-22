@@ -72,11 +72,21 @@ export interface SavedOverallTimeFatigueConsecutiveConstraint extends SavedConst
     limit : number
 }
 
+export interface Range {
+    startTime : Time
+    endTime : Time
+}
+
+export interface SavedUnavailableConstraint extends SavedConstraintBase {
+    range : Range
+}
+
 export type SavedConstraintType =
     SavedMustCannotWorkConstraint |
     SavedAtLeastWorkConstraint |
     SavedTimeFatigueTotalConstraint |
-    SavedOverallTimeFatigueTotalConstraint
+    SavedOverallTimeFatigueTotalConstraint |
+    SavedUnavailableConstraint
 
 export interface SavedConstraints {
     mustWork: SavedMustCannotWorkConstraint[]
@@ -85,6 +95,7 @@ export interface SavedConstraints {
     timeFatigueTotal : SavedTimeFatigueTotalConstraint[]
     overallTimeFatigueTotal : SavedOverallTimeFatigueTotalConstraint[]
     overallTimeFatigueConsecutive : SavedOverallTimeFatigueConsecutiveConstraint[]
+    unavailable : SavedUnavailableConstraint[]
 }
 
 const getUrl = (path : string) => `http://localhost:3000${path}`

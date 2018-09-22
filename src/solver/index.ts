@@ -38,8 +38,8 @@ export interface ConsecutiveTimeFatigueConstraint {
 }
 
 export type TimeUnavailableConstraint = WorkerOnlyConstraint<{
-    start : Time
-    end : Time
+    startTime : Time
+    endTime : Time
 }>
 
 export enum ConstraintType {

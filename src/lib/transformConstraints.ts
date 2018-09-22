@@ -124,3 +124,15 @@ export function transformConsecutiveFatigueConstraints(groups : WorkerTaskGroup[
 
     return constraintsObj
 }
+
+export function transformUnavailableConstraints(groups : WorkerTaskGroup[]) {
+    const constraintsObj = {}
+
+    groups.forEach(({workers, range }) => {
+        workers.forEach(workerId => {
+            constraintsObj[workerId] = { range }
+        })
+    })
+
+    return constraintsObj
+}

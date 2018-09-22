@@ -11,7 +11,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 
 import { Time } from '../data'
-import { getEndTimeOptions, renderTime } from '../lib/time'
+import { getEndTimeOptions, renderTime, renderTimeToTime } from '../lib/time'
 
 const styles = createStyles({
     form: {
@@ -36,10 +36,7 @@ class TaskScheduleDialog extends React.Component<Props, State> {
 
     private handleSave = () => {
         if (this.state.endTime) {
-            const [hour, min] = this.state.endTime.split(':')
-                .map((t : string) => parseInt(t.trim(), 10))
-
-            this.props.onSave({ hour, min })
+            this.props.onSave(renderTimeToTime(this.state.endTime))
             this.setState({ endTime: null })
         }
     }

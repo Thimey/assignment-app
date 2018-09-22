@@ -118,6 +118,12 @@ class Constraints extends React.Component<Props, State> {
                 info: 'Add constraints where workers cannot perform over a limit of time consecutively for all tasks',
                 comp: <ConstraintAdder type={ConstraintType.overallTimeFatigueConsecutive} />
             },
+            {
+                id: ConstraintType.unavailable,
+                name: 'Unavailability',
+                info: 'Add constraints where workers are not available between certain times',
+                comp: <ConstraintAdder type={ConstraintType.unavailable} />
+            },
         ]
     }
 
