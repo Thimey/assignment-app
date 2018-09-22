@@ -68,6 +68,10 @@ export interface SavedOverallTimeFatigueTotalConstraint extends SavedConstraintB
     limit : number
 }
 
+export interface SavedOverallTimeFatigueConsecutiveConstraint extends SavedConstraintBase {
+    limit : number
+}
+
 export type SavedConstraintType =
     SavedMustCannotWorkConstraint |
     SavedAtLeastWorkConstraint |
@@ -80,6 +84,7 @@ export interface SavedConstraints {
     atLeastWork : SavedAtLeastWorkConstraint[]
     timeFatigueTotal : SavedTimeFatigueTotalConstraint[]
     overallTimeFatigueTotal : SavedOverallTimeFatigueTotalConstraint[]
+    overallTimeFatigueConsecutive : SavedOverallTimeFatigueConsecutiveConstraint[]
 }
 
 const getUrl = (path : string) => `http://localhost:3000${path}`

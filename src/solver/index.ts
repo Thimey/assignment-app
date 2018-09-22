@@ -33,6 +33,10 @@ export type TimeFatigueConstraint = WorkerOnlyConstraint<{
     limit : number
 }>
 
+export interface ConsecutiveTimeFatigueConstraint {
+    [limit : string]: number[]
+}
+
 export type TimeUnavailableConstraint = WorkerOnlyConstraint<{
     start : Time
     end : Time
@@ -46,7 +50,7 @@ export enum ConstraintType {
     atLeastWork = 'atLeastWork',
     overallTimeFatigueTotal = 'overallTimeFatigueTotal',
     timeFatigueTotal = 'timeFatigueTotal',
-    timeFatigueConsecutive = 'timeFatigueConsecutive',
+    overallTimeFatigueConsecutive = 'overallTimeFatigueConsecutive',
     unavailable = 'unavailable',
     fifa = 'fifa'
 }
@@ -57,12 +61,13 @@ export type Constraint =
     CannotWorkConstraint |
     MustWorkConstraint |
     AtLeastWorkConstraint |
-    OverallTimeFatigueTotalConstraint
+    OverallTimeFatigueTotalConstraint |
+    ConsecutiveTimeFatigueConstraint
 
 export interface Constraints {
     overallTimeFatigueTotal ?: OverallTimeFatigueTotalConstraint[]
     timeFatigueTotal ?: TimeFatigueConstraint[]
-    timeFatigueConsecutive ?: TimeFatigueConstraint[]
+    overallTimeFatigueConsecutive ?: ConsecutiveTimeFatigueConstraint
     unavailable ?: TimeUnavailableConstraint[]
     cannotWork ?: CannotWorkConstraint[]
     mustWork ?: MustWorkConstraint[]

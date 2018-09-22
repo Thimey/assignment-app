@@ -5,12 +5,14 @@ import {
     transformMustCannotAtLeastConstraints,
     transformTimeFatigueTotalConstraints,
     transformOverallTimeFatigueTotalConstraints,
+    transformConsecutiveFatigueConstraints,
 } from '../lib/transformConstraints'
 
 import {
     SavedMustCannotWorkConstraint,
     SavedTimeFatigueTotalConstraint,
     SavedOverallTimeFatigueTotalConstraint,
+    SavedOverallTimeFatigueConsecutiveConstraint,
     SavedAtLeastWorkConstraint,
     SavedConstraintBase,
     SavedConstraints,
@@ -22,6 +24,7 @@ class ConstraintStore {
     public atLeastWorkConstraints : IObservableArray<SavedAtLeastWorkConstraint> = observable([])
     public timeFatigueTotalConstraints : IObservableArray<SavedTimeFatigueTotalConstraint> = observable([])
     public overallTimeFatigueTotalConstraints : IObservableArray<SavedOverallTimeFatigueTotalConstraint> = observable([])
+    public overallTimeFatigueConsecutiveConstraints : IObservableArray<SavedOverallTimeFatigueConsecutiveConstraint> = observable([])
 
     @action.bound
     public addConstraints(constraints : SavedConstraints) {
@@ -30,6 +33,7 @@ class ConstraintStore {
         this.atLeastWorkConstraints.replace(constraints.atLeastWork)
         this.timeFatigueTotalConstraints.replace(constraints.timeFatigueTotal)
         this.overallTimeFatigueTotalConstraints.replace(constraints.overallTimeFatigueTotal)
+        this.overallTimeFatigueConsecutiveConstraints.replace(constraints.overallTimeFatigueConsecutive)
     }
 
     @action.bound
@@ -44,6 +48,8 @@ class ConstraintStore {
             this.timeFatigueTotalConstraints[index] = data
         } else if (type === ConstraintType.overallTimeFatigueTotal) {
             this.overallTimeFatigueTotalConstraints[index] = data
+        } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
+            this.overallTimeFatigueConsecutiveConstraints[index] = data
         }
     }
 
@@ -80,6 +86,12 @@ class ConstraintStore {
                 limit: 30,
                 disabled: false,
             })
+        } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
+            this.overallTimeFatigueConsecutiveConstraints.push({
+                workers: [],
+                limit: 30,
+                disabled: false,
+            })
         }
     }
 
@@ -95,6 +107,8 @@ class ConstraintStore {
             this.timeFatigueTotalConstraints.replace(this.timeFatigueTotalConstraints.filter((_, i) => i !== index))
         } else if (type === ConstraintType.overallTimeFatigueTotal) {
             this.overallTimeFatigueTotalConstraints.replace(this.overallTimeFatigueTotalConstraints.filter((_, i) => i !== index))
+        } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
+            this.overallTimeFatigueConsecutiveConstraints.replace(this.overallTimeFatigueConsecutiveConstraints.filter((_, i) => i !== index))
         }
     }
 
@@ -107,16 +121,18 @@ class ConstraintStore {
             atLeastWork: transformMustCannotAtLeastConstraints(toJS(this.atLeastWorkConstraints).filter(this.filterDisabled)) as any,
             timeFatigueTotal: transformTimeFatigueTotalConstraints(toJS(this.timeFatigueTotalConstraints).filter(this.filterDisabled)) as any,
             overallTimeFatigueTotal: transformOverallTimeFatigueTotalConstraints(toJS(this.overallTimeFatigueTotalConstraints).filter(this.filterDisabled)) as any,
+            overallTimeFatigueConsecutive: transformConsecutiveFatigueConstraints(toJS(this.overallTimeFatigueConsecutiveConstraints).filter(this.filterDisabled)) as any,
         }
     }
 
-    public getConstraintsForDb() : Constraints {
+    public getConstraintsForDb() : SavedConstraints {
         return {
             mustWork: toJS(this.mustWorkConstraints) as any,
             cannotWork: toJS(this.cannotWorkConstraints) as any,
             atLeastWork: toJS(this.atLeastWorkConstraints) as any,
             timeFatigueTotal: toJS(this.timeFatigueTotalConstraints) as any,
             overallTimeFatigueTotal: toJS(this.overallTimeFatigueTotalConstraints) as any,
+            overallTimeFatigueConsecutive: toJS(this.overallTimeFatigueConsecutiveConstraints) as any,
         }
     }
 }

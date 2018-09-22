@@ -138,6 +138,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
             title = 'at least once'
         } else if (type === ConstraintType.overallTimeFatigueTotal) {
             title = 'overall limit of'
+        } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
+            title = 'consecutive limit of'
         } else {
             return null
         }
@@ -164,7 +166,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
     private renderLimitField(index : number, constraint : SavedConstraintType) {
         if (
             this.props.type !== ConstraintType.timeFatigueTotal &&
-            this.props.type !== ConstraintType.overallTimeFatigueTotal
+            this.props.type !== ConstraintType.overallTimeFatigueTotal &&
+            this.props.type !== ConstraintType.overallTimeFatigueConsecutive
         ) {
             return null
         }
@@ -187,7 +190,10 @@ class MustCannotConstraint extends React.Component<Props, State> {
     }
 
     private renderTaskPicker(index : number, constraint : SavedConstraintType) {
-        if (this.props.type === ConstraintType.overallTimeFatigueTotal) {
+        if (
+            this.props.type === ConstraintType.overallTimeFatigueTotal ||
+            this.props.type === ConstraintType.overallTimeFatigueConsecutive
+        ) {
             return null
         }
 
@@ -274,6 +280,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
             constraints = constraintStore.timeFatigueTotalConstraints
         } else if (type === ConstraintType.overallTimeFatigueTotal) {
             constraints = constraintStore.overallTimeFatigueTotalConstraints
+        } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
+            constraints = constraintStore.overallTimeFatigueConsecutiveConstraints
         }
 
         return (

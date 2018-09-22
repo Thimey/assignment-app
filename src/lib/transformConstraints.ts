@@ -1,5 +1,5 @@
 // import { SavedMustCannotWorkConstraint } from '../data'
-import { isEmpty } from 'ramda'
+import { isEmpty, uniq } from 'ramda'
 
 
 export interface WorkerTaskGroup {
@@ -106,6 +106,20 @@ export function transformOverallTimeFatigueTotalConstraints(groups : WorkerTaskG
         workers.forEach(workerId => {
             constraintsObj[workerId] = { limit }
         })
+    })
+
+    return constraintsObj
+}
+
+export function transformConsecutiveFatigueConstraints(groups : WorkerTaskGroup[]) {
+    const constraintsObj = {}
+
+    groups.forEach(({workers, limit }) => {
+        if (constraintsObj[limit]) {
+            constraintsObj[limit] = uniq([constraintsObj[limit], ...workers])
+        } else {
+            constraintsObj[limit] = workers
+        }
     })
 
     return constraintsObj
