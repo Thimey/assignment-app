@@ -5,9 +5,11 @@ import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 
-import WorkerAvatar from './WorkerAvatar'
 import allocationSolutionStore from '../stores/allocationSolutionStore'
+import costStore from '../stores/costStore'
+import getCostColor from '../lib/getCostColor'
 import { Task, ScheduledTask, Worker } from '../data'
+import WorkerAvatar from './WorkerAvatar'
 
 const styles = (theme: Theme) => createStyles({
     container: {
@@ -24,6 +26,9 @@ const styles = (theme: Theme) => createStyles({
         flexWrap: 'wrap',
         justifyContent: 'space-evenly',
         alignItems: 'center',
+    },
+    innerContainerTaskView: {
+        flexDirection: 'column',
     },
     notAllocated: {
         backgroundColor: theme.palette.primary.light,
@@ -43,6 +48,7 @@ export interface Props extends WithStyles<typeof styles> {
     onDelete ?: (scheduledTaskId : string) => void
     width : number
     view : 'worker' | 'task'
+    worker ?: Worker // only for task view
 }
 
 export interface State {
@@ -82,11 +88,20 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
             scheduledTask,
             view,
             task,
+            worker,
         } = this.props
 
         const allocated = view === 'worker'
             ? allocationSolutionStore.getScheduledTaskAllocated(scheduledTask.id)
             : []
+
+        const cost = worker
+            ? costStore.getCost(worker, task)
+            : null
+
+        const backgroundStyle = (view === 'task' && worker)
+            ? getCostColor(cost!)
+            : undefined
 
         return (
             <div
@@ -94,10 +109,14 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
                 onMouseLeave={this.handleMouseLeave}
                 className={classes.container}
             >
-                <div className={classnames(classes.innerContainer, {
-                    [classes.notAllocated]: !allocated,
-                    [classes.allocated]: allocated,
-                })}>
+                <div
+                    style={backgroundStyle}
+                    className={classnames(classes.innerContainer, {
+                        [classes.notAllocated]: !allocated,
+                        [classes.allocated]: allocated,
+                        [classes.innerContainerTaskView]: view === 'task',
+                    })}
+                >
                     {
                         (onDelete && this.state.hovered && !allocated) &&
                         <Button onClick={this.handleDelete} variant="flat">
@@ -111,8 +130,16 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
                     }
 
                     {
-                        view === 'task' &&
-                        <Typography>{ task.name }</Typography>
+                        view === 'task' && (
+                            <React.Fragment>
+                                <Typography>{ task.name }</Typography>
+                                <Typography variant='caption'>
+                                    {
+                                        `(${cost})`
+                                    }
+                                </Typography>
+                            </React.Fragment>
+                        )
                     }
                 </div>
             </div>

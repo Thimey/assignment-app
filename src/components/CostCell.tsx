@@ -6,6 +6,7 @@ import TextField from '@material-ui/core/TextField'
 
 import { Worker, Task } from '../data'
 import costStore from '../stores/costStore'
+import getCostColor from '../lib/getCostColor'
 import updateCurrentCostMatrix from '../actions/updateCurrentCostMatrix'
 
 const styles = createStyles({
@@ -37,14 +38,6 @@ class CostCell extends React.Component<Props, State> {
     state : State = { open: false }
     private anchorEl : HTMLElement | null = null
 
-    private getColor(cost : number){
-        const hue = ((1 - cost / 100) * 120).toString(10)
-
-        return {
-            backgroundColor: `hsl(${hue}, 100%, 50%)`,
-        }
-    }
-
     private handleOpen = () => this.setState({ open: true })
     private handleClose = () => {
         this.setState({ open: false })
@@ -72,7 +65,7 @@ class CostCell extends React.Component<Props, State> {
             <React.Fragment>
                 <div
                     className={classes.container}
-                    style={this.getColor(cost)}
+                    style={getCostColor(cost)}
                     ref={(node : HTMLElement | null) => {this.anchorEl = node}}
                     onClick={this.handleOpen}
                 >

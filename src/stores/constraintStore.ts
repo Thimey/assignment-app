@@ -7,6 +7,7 @@ import {
     transformOverallTimeFatigueTotalConstraints,
     transformConsecutiveFatigueConstraints,
     transformUnavailableConstraints,
+    transformBuddyNemesisConstraints,
 } from '../lib/transformConstraints'
 
 import {
@@ -17,6 +18,7 @@ import {
     SavedAtLeastWorkConstraint,
     SavedConstraintBase,
     SavedConstraints,
+    SavedBuddyNemesisConstraint,
     SavedUnavailableConstraint,
 } from '../data'
 
@@ -28,6 +30,8 @@ class ConstraintStore {
     public overallTimeFatigueTotalConstraints : IObservableArray<SavedOverallTimeFatigueTotalConstraint> = observable([])
     public overallTimeFatigueConsecutiveConstraints : IObservableArray<SavedOverallTimeFatigueConsecutiveConstraint> = observable([])
     public unavailableConstraints : IObservableArray<SavedUnavailableConstraint> = observable([])
+    public buddyConstraints : IObservableArray<SavedBuddyNemesisConstraint> = observable([])
+    public nemesisConstraints : IObservableArray<SavedBuddyNemesisConstraint> = observable([])
 
     @action.bound
     public addConstraints(constraints : SavedConstraints) {
@@ -38,6 +42,8 @@ class ConstraintStore {
         this.overallTimeFatigueTotalConstraints.replace(constraints.overallTimeFatigueTotal)
         this.overallTimeFatigueConsecutiveConstraints.replace(constraints.overallTimeFatigueConsecutive)
         this.unavailableConstraints.replace(constraints.unavailable)
+        this.buddyConstraints.replace(constraints.buddy)
+        this.nemesisConstraints.replace(constraints.buddy)
     }
 
     @action.bound
@@ -56,6 +62,10 @@ class ConstraintStore {
             this.overallTimeFatigueConsecutiveConstraints[index] = data
         } else if (type === ConstraintType.unavailable) {
             this.unavailableConstraints[index] = data
+        } else if (type === ConstraintType.buddy) {
+            this.buddyConstraints[index] = data
+        } else if (type === ConstraintType.nemesis) {
+            this.nemesisConstraints[index] = data
         }
     }
 
@@ -107,6 +117,18 @@ class ConstraintStore {
                 },
                 disabled: false,
             })
+        } else if (type === ConstraintType.buddy) {
+            this.buddyConstraints.push({
+                workers: [],
+                tasks: [],
+                disabled: false,
+            })
+        } else if (type === ConstraintType.nemesis) {
+            this.nemesisConstraints.push({
+                workers: [],
+                tasks: [],
+                disabled: false,
+            })
         }
     }
 
@@ -126,6 +148,10 @@ class ConstraintStore {
             this.overallTimeFatigueConsecutiveConstraints.replace(this.overallTimeFatigueConsecutiveConstraints.filter((_, i) => i !== index))
         } else if (type === ConstraintType.unavailable) {
             this.unavailableConstraints.replace(this.unavailableConstraints.filter((_, i) => i !== index))
+        } else if (type === ConstraintType.buddy) {
+            this.buddyConstraints.replace(this.buddyConstraints.filter((_, i) => i !== index))
+        } else if (type === ConstraintType.nemesis) {
+            this.nemesisConstraints.replace(this.nemesisConstraints.filter((_, i) => i !== index))
         }
     }
 
@@ -140,6 +166,8 @@ class ConstraintStore {
             overallTimeFatigueTotal: transformOverallTimeFatigueTotalConstraints(toJS(this.overallTimeFatigueTotalConstraints).filter(this.filterDisabled)) as any,
             overallTimeFatigueConsecutive: transformConsecutiveFatigueConstraints(toJS(this.overallTimeFatigueConsecutiveConstraints).filter(this.filterDisabled)) as any,
             unavailable: transformUnavailableConstraints(toJS(this.unavailableConstraints).filter(this.filterDisabled)) as any,
+            buddy: transformBuddyNemesisConstraints(toJS(this.buddyConstraints).filter(this.filterDisabled)) as any,
+            nemesis: transformBuddyNemesisConstraints(toJS(this.nemesisConstraints).filter(this.filterDisabled)) as any,
         }
     }
 
@@ -152,6 +180,8 @@ class ConstraintStore {
             overallTimeFatigueTotal: toJS(this.overallTimeFatigueTotalConstraints) as any,
             overallTimeFatigueConsecutive: toJS(this.overallTimeFatigueConsecutiveConstraints) as any,
             unavailable: toJS(this.unavailableConstraints) as any,
+            buddy: toJS(this.buddyConstraints) as any,
+            nemesis: toJS(this.nemesisConstraints) as any,
         }
     }
 }

@@ -124,6 +124,18 @@ class Constraints extends React.Component<Props, State> {
                 info: 'Add constraints where workers are not available between certain times',
                 comp: <ConstraintAdder type={ConstraintType.unavailable} />
             },
+            {
+                id: ConstraintType.buddy,
+                name: 'Buddy constraint',
+                info: 'Add constraints where workers perform tasks together',
+                comp: <ConstraintAdder type={ConstraintType.buddy} />
+            },
+            {
+                id: ConstraintType.nemesis,
+                name: 'Nemesis constraint',
+                info: 'Add constraints where workers cannot perform tasks together',
+                comp: <ConstraintAdder type={ConstraintType.nemesis} />
+            },
         ]
     }
 

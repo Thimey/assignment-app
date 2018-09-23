@@ -60,6 +60,8 @@ export interface SavedMustCannotWorkConstraint extends SavedTaskConstraint, Save
 
 export interface SavedAtLeastWorkConstraint extends SavedTaskConstraint, SavedConstraintBase {}
 
+export interface SavedBuddyNemesisConstraint extends SavedTaskConstraint, SavedConstraintBase {}
+
 export interface SavedTimeFatigueTotalConstraint extends SavedTaskConstraint, SavedConstraintBase {
     limit : number
 }
@@ -86,7 +88,8 @@ export type SavedConstraintType =
     SavedAtLeastWorkConstraint |
     SavedTimeFatigueTotalConstraint |
     SavedOverallTimeFatigueTotalConstraint |
-    SavedUnavailableConstraint
+    SavedUnavailableConstraint |
+    SavedBuddyNemesisConstraint
 
 export interface SavedConstraints {
     mustWork: SavedMustCannotWorkConstraint[]
@@ -96,6 +99,8 @@ export interface SavedConstraints {
     overallTimeFatigueTotal : SavedOverallTimeFatigueTotalConstraint[]
     overallTimeFatigueConsecutive : SavedOverallTimeFatigueConsecutiveConstraint[]
     unavailable : SavedUnavailableConstraint[]
+    buddy : SavedBuddyNemesisConstraint[]
+    nemesis : SavedBuddyNemesisConstraint[]
 }
 
 const getUrl = (path : string) => `http://localhost:3000${path}`

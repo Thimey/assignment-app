@@ -76,12 +76,12 @@ export interface State {
     activeStep : number
 }
 
-// TODO: no work constraint, has to work constraint, consecutive, total
-
 @observer
 export class AllocateSchedule extends React.Component<Props, State> {
     state : State = {
-        selectedWorkerIds: [],
+        selectedWorkerIds: [
+            ...workerStore.workers.map(w => w.id)
+        ],
         open: false,
         filter: '',
         selectedSolution: SolveOption.noOptimisation,

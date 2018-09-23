@@ -136,3 +136,19 @@ export function transformUnavailableConstraints(groups : WorkerTaskGroup[]) {
 
     return constraintsObj
 }
+
+export function transformBuddyNemesisConstraints(groups : WorkerTaskGroup[]) {
+    const constraintsObj = {}
+
+    groups.forEach(({workers, tasks }) => {
+        tasks!.forEach(taskId => {
+            if (constraintsObj[taskId]) {
+                constraintsObj[taskId] = uniq([...constraintsObj[taskId], ...workers])
+            } else {
+                constraintsObj[taskId] = [...workers]
+            }
+        })
+    })
+
+    return constraintsObj
+}

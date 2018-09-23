@@ -5,7 +5,7 @@ import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
 import Divider from '@material-ui/core/Divider'
 
 import { getTimes, renderTime } from '../lib/time'
-import { Schedule, Time, ScheduledTask } from '../data'
+import { Schedule, Time, ScheduledTask, Worker } from '../data'
 import NewButton from '../components/NewButton'
 import ScheduleList from '../components/ScheduleList'
 import ScheduledTaskOverLay from '../components/ScheduledTaskOverlay'
@@ -77,12 +77,13 @@ class AllocatedWorkerMatrix extends React.Component<Props> {
 
     private renderTime = (time : Time) => <HeaderCell text={renderTime(time)} />
 
-    private renderOverlay = ({ scheduledTask } : { worker : Worker, scheduledTask : ScheduledTask }, width : number) =>
+    private renderOverlay = ({ scheduledTask, worker } : { worker : Worker, scheduledTask : ScheduledTask }, width : number) =>
         <ScheduledTaskOverLay
             task={taskStore.getTask(scheduledTask.taskId)!}
             scheduledTask={scheduledTask}
             onDelete={deleteScheduledTask}
             width={width}
+            worker={worker}
             view='task'
         />
 

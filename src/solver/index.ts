@@ -42,6 +42,10 @@ export type TimeUnavailableConstraint = WorkerOnlyConstraint<{
     endTime : Time
 }>
 
+export interface BuddyNemesisConstraint {
+    [taskId : string] : number[]
+}
+
 export enum ConstraintType {
     sameTask = 'sameTask',
     sameTime = 'sameTime',
@@ -52,6 +56,8 @@ export enum ConstraintType {
     timeFatigueTotal = 'timeFatigueTotal',
     overallTimeFatigueConsecutive = 'overallTimeFatigueConsecutive',
     unavailable = 'unavailable',
+    buddy = 'buddy',
+    nemesis = 'nemesis',
     fifa = 'fifa'
 }
 
@@ -62,7 +68,9 @@ export type Constraint =
     MustWorkConstraint |
     AtLeastWorkConstraint |
     OverallTimeFatigueTotalConstraint |
-    ConsecutiveTimeFatigueConstraint
+    ConsecutiveTimeFatigueConstraint |
+    BuddyNemesisConstraint
+
 
 export interface Constraints {
     overallTimeFatigueTotal ?: OverallTimeFatigueTotalConstraint[]
@@ -72,6 +80,8 @@ export interface Constraints {
     cannotWork ?: CannotWorkConstraint[]
     mustWork ?: MustWorkConstraint[]
     atLeastWork ?: AtLeastWorkConstraint[]
+    buddy ?: BuddyNemesisConstraint
+    nemesis ?: BuddyNemesisConstraint
 }
 
 export interface SolverResponse {

@@ -156,6 +156,10 @@ class MustCannotConstraint extends React.Component<Props, State> {
             title = 'consecutive limit of'
         } else if (type === ConstraintType.unavailable) {
             title = 'unavailable between'
+        } else if (type === ConstraintType.buddy) {
+            title = 'work together on'
+        } else if (type === ConstraintType.nemesis) {
+            title = 'work cannot together on'
         } else {
             return null
         }
@@ -320,6 +324,10 @@ class MustCannotConstraint extends React.Component<Props, State> {
             constraints = constraintStore.overallTimeFatigueConsecutiveConstraints
         } else if (type === ConstraintType.unavailable) {
             constraints = constraintStore.unavailableConstraints
+        } else if (type === ConstraintType.buddy) {
+            constraints = constraintStore.buddyConstraints
+        } else if (type === ConstraintType.nemesis) {
+            constraints = constraintStore.nemesisConstraints
         }
 
         return (
