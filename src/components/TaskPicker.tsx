@@ -42,16 +42,48 @@ export interface Props extends WithStyles<typeof styles> {
     onSelect : (newSelectedIds : number[]) => void
 }
 
+const ALL = 'all'
+
 @observer
 class TaskPicker extends React.Component<Props> {
     handleChange = (e : any) => {
-        const newTaskIds = e.target.value
+        const value = e.target.value
+
+        const newTaskIds = value.filter((id : any) => id !== ALL)
+
+        this.props.onSelect(newTaskIds)
+    }
+
+    private handleSelectAll = (e : any) => {
+        e.stopPropagation()
+
+        const newTaskIds = this.allSelected
+            ? []
+            : taskStore.tasks.map(({ id }) => id)
 
         this.props.onSelect(newTaskIds)
     }
 
     private isSelected(taskId : Task['id']) {
         return this.props.selectedTaskIds.find(id => id === taskId) !== undefined
+    }
+
+    private get allSelected() {
+        return this.props.selectedTaskIds.length === taskStore.tasks.length
+    }
+
+    private renderSelectAll = () => {
+        const allSelected = this.allSelected
+        const displayText = allSelected
+            ? 'Deselect all'
+            : 'Select all'
+
+        return (
+            <MenuItem value={ALL}>
+                <Checkbox onClick={this.handleSelectAll} checked={allSelected} />
+                <ListItemText primary={displayText} />
+            </MenuItem>
+        )
     }
 
     private renderMenuItem = (task : Task) => (
@@ -92,7 +124,13 @@ class TaskPicker extends React.Component<Props> {
                     renderValue={this.renderValue}
                     MenuProps={MenuProps}
                 >
-                    {taskStore.tasks.map(this.renderMenuItem)}
+                    {
+                        this.renderSelectAll()
+                    }
+
+                    {
+                        taskStore.tasks.map(this.renderMenuItem)
+                    }
                 </Select>
             </div>
         )

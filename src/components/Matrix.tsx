@@ -25,6 +25,7 @@ export interface IProps<T, U, P> extends MatrixBaseProps<T>, WithStyles<typeof s
     colHeaders : P[]
     renderRowHeader : (data : U) => JSX.Element | null
     renderColHeader : (data : P) => JSX.Element | null
+    renderCorner : () => JSX.Element
 }
 
 export interface IState {
@@ -35,8 +36,6 @@ export class CostMatrix<T, U, P> extends React.Component<IProps<T, U, P>, IState
     state = { scrollTop: 0 }
 
     private onScroll = (scrollTop : number) => this.setState({ scrollTop })
-
-    private renderNull = (_ : any) => null
 
     public render() {
         const {
@@ -51,7 +50,8 @@ export class CostMatrix<T, U, P> extends React.Component<IProps<T, U, P>, IState
             cellOverlays,
             cellWidthPx,
             cellHeaderHeightPx,
-            cellContentHeightPx
+            cellContentHeightPx,
+            renderCorner,
         } = this.props
 
         return (
@@ -64,7 +64,7 @@ export class CostMatrix<T, U, P> extends React.Component<IProps<T, U, P>, IState
                         cells={rowHeaders.map(r => [r])}
                         headers={[0]}
                         renderCell={renderRowHeader}
-                        renderHeader={this.renderNull}
+                        renderHeader={renderCorner}
                         cellWidthPx={cellWidthPx}
                         cellHeaderHeightPx={cellHeaderHeightPx}
                         cellContentHeightPx={cellContentHeightPx}

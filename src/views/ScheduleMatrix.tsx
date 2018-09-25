@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { when, computed } from 'mobx'
 import { observer } from 'mobx-react'
 import Matrix from '../components/Matrix'
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
@@ -12,6 +13,7 @@ import ScheduledTaskOverLay from '../components/ScheduledTaskOverlay'
 import TaskScheduleDialog from '../components/TaskScheduleDialog'
 import ScheduleTaskHeader from '../components/ScheduledTaskHeader'
 import HeaderCell from '../components/HeaderCell'
+import CornerMatrixFilter from '../components/CornerMatrixFilter'
 
 import {
     SCHEDULE_CELL_WIDTH_PX,
@@ -57,16 +59,47 @@ const styles = (theme : Theme) => createStyles({
 
 export interface Props extends WithStyles<typeof styles> {}
 
+export interface State {
+    selectedTaskIds : number[]
+}
+
 @observer
-class ScheduleMatrix extends React.Component<Props> {
+class ScheduleMatrix extends React.Component<Props, State> {
+    constructor(props : Props) {
+        super(props)
+
+        this.state = {
+            selectedTaskIds: [],
+        }
+
+        when(
+            () => !!taskStore.tasks.length,
+            () => {
+                this.state = {
+                selectedTaskIds: taskStore.tasks.map(({ id }) => id)
+            }},
+        )
+    }
+
+    @computed
+    private get tasks() {
+        return taskStore.tasks
+            .filter(({ id }) =>
+                this.state.selectedTaskIds.indexOf(id) >= 0
+            )
+    }
+
     private get cells() : TimeTask[][] {
         const times = getTimes()
 
-        return taskStore.tasks.reduce((acc, task) => ([
-            ...acc,
-            times.map(time => ({ time, task })),
-        ]), [])
+        return this.tasks
+            .reduce((acc, task) => ([
+                ...acc,
+                times.map(time => ({ time, task })),
+            ]), [])
     }
+
+    private handleOnTaskFilterSelect = (selectedTaskIds : number[]) => this.setState({ selectedTaskIds })
 
     private onScheduleSelect = (schedule : Schedule) => {
         scheduleStore.setSelectedScheduleId(schedule.id)
@@ -94,6 +127,16 @@ class ScheduleMatrix extends React.Component<Props> {
             className={this.props.classes.cellContainer}
         />
     )
+
+    private renderCorner = () => {
+        return (
+            <CornerMatrixFilter
+                selectedTaskIds={this.state.selectedTaskIds}
+                onTaskSelect={this.handleOnTaskFilterSelect}
+            />
+        )
+
+    }
 
     private handleCloseTaskToSchedule = () =>
         scheduleStore.setSelectedTimeTask(null)
@@ -137,10 +180,11 @@ class ScheduleMatrix extends React.Component<Props> {
                                 <Matrix
                                     cells={this.cells}
                                     colHeaders={getTimes()}
-                                    rowHeaders={taskStore.tasks as any}
+                                    rowHeaders={this.tasks as any}
                                     renderCell={this.renderCell}
                                     renderColHeader={this.renderTime}
                                     renderRowHeader={this.renderTask}
+                                    renderCorner={this.renderCorner}
                                     cellWidthPx={SCHEDULE_CELL_WIDTH_PX}
                                     cellHeaderHeightPx={SCHEDULE_HEADER_CELL_HEIGHT_PX}
                                     cellContentHeightPx={SCHEDULE_CONTENT_CELL_HEIGHT_PX}

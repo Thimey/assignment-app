@@ -68,6 +68,10 @@ class CostMatrix extends React.Component<Props> {
             task={task}
         />
 
+    private renderCorner = () => {
+        return <div></div>
+    }
+
     private restoreDefault = () => {
         // Restore the current costMatrix
         costStore.restoreDefault()
@@ -91,7 +95,6 @@ class CostMatrix extends React.Component<Props> {
     public render() {
         const { classes } = this.props
 
-
         return (
             <div className={classes.container}>
                 <div className={classes.matrixContainer}>
@@ -101,6 +104,7 @@ class CostMatrix extends React.Component<Props> {
                         rowHeaders={workerStore.workers as Worker[]}
                         renderCell={this.renderCost}
                         renderColHeader={this.renderTask}
+                        renderCorner={this.renderCorner}
                         renderRowHeader={this.renderWorker}
                         cellWidthPx={COST_MATRIX_CELL_WIDTH_PX}
                         cellHeaderHeightPx={COST_MATRIX_HEADER_CELL_HEIGHT_PX}
