@@ -1,11 +1,12 @@
 import * as React from 'react'
-import { when, computed } from 'mobx'
+import { computed } from 'mobx'
 import { observer } from 'mobx-react'
 import Matrix from '../components/Matrix'
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
 import Divider from '@material-ui/core/Divider'
 
 import { getTimes, renderTime } from '../lib/time'
+import filterTasks from '../lib/filterTasks'
 import { Task, Schedule, Time, ScheduledTask } from '../data'
 import NewButton from '../components/NewButton'
 import ScheduleList from '../components/ScheduleList'
@@ -65,28 +66,9 @@ export interface State {
 
 @observer
 class ScheduleMatrix extends React.Component<Props, State> {
-    constructor(props : Props) {
-        super(props)
-
-        this.state = {
-            selectedTaskIds: [],
-        }
-
-        when(
-            () => !!taskStore.tasks.length,
-            () => {
-                this.state = {
-                selectedTaskIds: taskStore.tasks.map(({ id }) => id)
-            }},
-        )
-    }
-
     @computed
     private get tasks() {
-        return taskStore.tasks
-            .filter(({ id }) =>
-                this.state.selectedTaskIds.indexOf(id) >= 0
-            )
+        return filterTasks(taskStore.tasks as any, scheduleStore.scheduleTaskFilter)
     }
 
     private get cells() : TimeTask[][] {
@@ -98,8 +80,6 @@ class ScheduleMatrix extends React.Component<Props, State> {
                 times.map(time => ({ time, task })),
             ]), [])
     }
-
-    private handleOnTaskFilterSelect = (selectedTaskIds : number[]) => this.setState({ selectedTaskIds })
 
     private onScheduleSelect = (schedule : Schedule) => {
         scheduleStore.setSelectedScheduleId(schedule.id)
@@ -130,12 +110,8 @@ class ScheduleMatrix extends React.Component<Props, State> {
 
     private renderCorner = () => {
         return (
-            <CornerMatrixFilter
-                selectedTaskIds={this.state.selectedTaskIds}
-                onTaskSelect={this.handleOnTaskFilterSelect}
-            />
+            <CornerMatrixFilter />
         )
-
     }
 
     private handleCloseTaskToSchedule = () =>

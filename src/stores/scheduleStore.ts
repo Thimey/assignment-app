@@ -17,6 +17,20 @@ export interface TimeWorker {
 class ScheduleStore {
 
     private schedulesMap : ObservableMap<number, Schedule> = observable.map()
+    @observable
+    public scheduleTaskFilter : string = ''
+    @observable
+    public scheduleWorkerFilter : string = ''
+
+    @action.bound
+    public onTaskFilter(filter : string) {
+        this.scheduleTaskFilter = filter
+    }
+
+    @action.bound
+    public onWorkerFilter(filter : string) {
+        this.scheduleWorkerFilter = filter
+    }
 
     @action.bound
     public addSchedules(schedules : Schedule[]) {

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { computed } from 'mobx'
 import { observer } from 'mobx-react'
 import Matrix from '../components/Matrix'
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
@@ -10,6 +11,7 @@ import NewButton from '../components/NewButton'
 import ScheduleList from '../components/ScheduleList'
 import ScheduledTaskOverLay from '../components/ScheduledTaskOverlay'
 import HeaderCell from '../components/HeaderCell'
+import CornerMatrixFilter from '../components/CornerMatrixFilter'
 
 import {
     SCHEDULE_CELL_WIDTH_PX,
@@ -24,6 +26,8 @@ import scheduleStore, { TimeWorker } from '../stores/scheduleStore'
 import allocationSolutionStore from '../stores/allocationSolutionStore'
 import workerStore from '../stores/workerStore'
 import taskStore from '../stores/taskStore'
+
+import filterWorkers from '../lib/filterWorkers'
 
 import saveScheduleAction from '../actions/saveSchedule'
 import deleteScheduledTask from '../actions/deleteScheduledTask'
@@ -60,10 +64,15 @@ export interface Props extends WithStyles<typeof styles> {}
 
 @observer
 class AllocatedWorkerMatrix extends React.Component<Props> {
+    @computed
+    private get workers() {
+        return filterWorkers(workerStore.workers, scheduleStore.scheduleWorkerFilter)
+    }
+
     private get cells() : TimeWorker[][] {
         const times = getTimes()
 
-        return workerStore.workers.reduce((acc, worker) => ([
+        return this.workers.reduce((acc, worker) => ([
             ...acc,
             times.map(time => ({ time, worker })),
         ]), [])
@@ -94,7 +103,7 @@ class AllocatedWorkerMatrix extends React.Component<Props> {
     )
 
     private renderCorner = () => {
-        return <div></div>
+        return <CornerMatrixFilter />
     }
 
     public render() {
@@ -127,7 +136,7 @@ class AllocatedWorkerMatrix extends React.Component<Props> {
                             <Matrix
                                 cells={this.cells}
                                 colHeaders={getTimes()}
-                                rowHeaders={workerStore.workers as any}
+                                rowHeaders={this.workers as any}
                                 renderCell={this.renderCell}
                                 renderColHeader={this.renderTime}
                                 renderRowHeader={this.renderWorker}

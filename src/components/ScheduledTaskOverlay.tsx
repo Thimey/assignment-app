@@ -7,7 +7,12 @@ import Typography from '@material-ui/core/Typography'
 
 import allocationSolutionStore from '../stores/allocationSolutionStore'
 import costStore from '../stores/costStore'
+import scheduleStore from '../stores/scheduleStore'
+
 import getCostColor from '../lib/getCostColor'
+import { filterWorker } from '../lib/filterWorkers'
+import { filterTask } from '../lib/filterTasks'
+
 import { Task, ScheduledTask, Worker } from '../data'
 import WorkerAvatar from './WorkerAvatar'
 
@@ -67,8 +72,34 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
         }
     }
 
+    private getTaskAllocatedColor(workers : (Worker | undefined)[] | null) {
+        if (!workers) {
+            return undefined
+        }
+
+        const totalCost = workers.reduce((acc, worker) => {
+            if (!worker) {
+                return acc
+            }
+
+            return acc + costStore.getCost(worker, this.props.task)
+
+        }, 0)
+
+        return getCostColor(totalCost / this.props.task.qty)
+    }
+
     private renderWorkerAllocation = (worker : Worker | undefined) => {
         if (!worker) {
+            return null
+        }
+
+        // Filter out avatar if not in schedule filter
+        if (
+            allocationSolutionStore.getScheduledTaskAllocated(this.props.scheduledTask.id) &&
+            this.props.view === 'worker' &&
+            !filterWorker(scheduleStore.scheduleWorkerFilter)(worker)
+        ) {
             return null
         }
 
@@ -101,7 +132,12 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
 
         const backgroundStyle = (view === 'task' && worker)
             ? getCostColor(cost!)
-            : undefined
+            : this.getTaskAllocatedColor(allocated)
+
+        // If task, only show if in task filter
+        if (allocated && view === 'task' && !filterTask(scheduleStore.scheduleTaskFilter.toLowerCase())(task)) {
+            return null
+        }
 
         return (
             <div

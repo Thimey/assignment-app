@@ -3,11 +3,12 @@ import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Popover from '@material-ui/core/Popover'
 import FilterIcon from '@material-ui/icons/Filter'
+import TextField from '@material-ui/core/TextField'
+import Button from '@material-ui/core/Button'
+import CloseIcon from '@material-ui/icons/Close'
 
-import { Worker } from '../data'
+import scheduleStore from '../stores/scheduleStore'
 
-import WorkerPicker from './WorkerPicker'
-import TaskPicker from './TaskPicker'
 
 const styles = createStyles({
     button: {
@@ -23,16 +24,19 @@ const styles = createStyles({
     paper: {
         flexDirection: 'column',
         display: 'flex',
-        width: '400px',
+        width: '300px',
         padding: '16px',
-    }
+    },
+    inputContainer: {
+        display: 'flex',
+        alignItems: 'center',
+    },
+    iconButton: {
+        padding: 0,
+    },
 })
 
 export interface Props extends WithStyles<typeof styles> {
-    selectedTaskIds : number[]
-    onTaskSelect : (newSelectedIds : number[]) => void
-    selectedWorkerIds ?: number[]
-    onWorkerSelect ?: (newWorkerIds : Worker['id'][]) => void
 }
 
 @observer
@@ -47,13 +51,25 @@ class CornerMatrixFilter extends React.Component<Props, { open : boolean }> {
         this.anchorEl = node
     }
 
+    private handleTaskFilterChange = (e : any) => {
+        scheduleStore.onTaskFilter(e.target.value)
+    }
+
+    private handleWorkerFilterChange = (e : any) => {
+        scheduleStore.onWorkerFilter(e.target.value)
+    }
+
+    private clearTaskFilter = () => {
+        scheduleStore.onTaskFilter('')
+    }
+
+    private clearWorkerFilter = () => {
+        scheduleStore.onWorkerFilter('')
+    }
+
     render() {
         const {
             classes,
-            selectedWorkerIds,
-            onWorkerSelect,
-            selectedTaskIds,
-            onTaskSelect,
         } = this.props
 
         return (
@@ -73,19 +89,45 @@ class CornerMatrixFilter extends React.Component<Props, { open : boolean }> {
                     classes={{
                         paper: classes.paper,
                     }}
+                    anchorOrigin={{
+                        vertical: 'center',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                    }}
                 >
-                    {
-                        (selectedWorkerIds && onWorkerSelect) &&
-                        <WorkerPicker
-                            selectedWorkerIds={selectedWorkerIds}
-                            onSelect={onWorkerSelect}
+                    <div className={classes.inputContainer}>
+                        <TextField
+                            onChange={this.handleTaskFilterChange}
+                            value={scheduleStore.scheduleTaskFilter}
+                            fullWidth
+                            placeholder='Task'
                         />
-                    }
+                        <Button
+                            className={classes.iconButton}
+                             onClick={this.clearTaskFilter}
+                        >
+                            <CloseIcon />
+                        </Button>
+                    </div>
 
-                    <TaskPicker
-                        selectedTaskIds={selectedTaskIds}
-                        onSelect={onTaskSelect}
-                    />
+                    <div className={classes.inputContainer} style={{ marginTop: '8px' }}>
+                        <TextField
+                            onChange={this.handleWorkerFilterChange}
+                            value={scheduleStore.scheduleWorkerFilter}
+                            fullWidth
+                            placeholder='Worker'
+                        />
+                        <Button
+                            className={classes.iconButton}
+                            onClick={this.clearWorkerFilter}
+                        >
+                            <CloseIcon />
+                        </Button>
+                    </div>
+
                 </Popover>
             </React.Fragment>
         )
