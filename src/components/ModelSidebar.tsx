@@ -1,13 +1,15 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
-import { createStyles, withStyles, WithStyles } from '@material-ui/core'
+import classnames from 'classnames'
+import { createStyles, withStyles, WithStyles, Theme } from '@material-ui/core'
 
-import Stepper from '@material-ui/core/Stepper'
-import Step from '@material-ui/core/Step'
-import StepLabel from '@material-ui/core/StepLabel'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+// import ListItemIcon from '@material-ui/core/ListItemIcon'
 
 
-const styles = createStyles({
+const styles = (theme : Theme)=> createStyles({
     container: {
         display: 'flex',
         height: '100%',
@@ -20,7 +22,11 @@ const styles = createStyles({
     stepContentContainer: {
         flex: 1,
         height: '100%',
+        paddingLeft: '16px',
     },
+    activeStep: {
+        backgroundColor: theme.palette.secondary.light,
+    }
 })
 
 export interface StepObj {
@@ -42,13 +48,20 @@ class AllocateStepper extends React.Component<Props> {
 
     private renderStep = ({ label, disabled } : StepObj, index : number) => {
         return (
-            <Step disabled={disabled} key={label}>
-                <StepLabel
-                    onClick={this.handleLabelClick(index)}
-                >
+            <ListItem
+                button
+                key={label}
+                disabled={disabled}
+                onClick={disabled ? undefined : this.handleLabelClick(index)}
+                className={classnames({
+                    [this.props.classes.activeStep]: this.props.activeStep === index
+                })}
+
+            >
+                <ListItemText>
                     {label}
-                </StepLabel>
-            </Step>
+                </ListItemText>
+            </ListItem>
         )
     }
 
@@ -68,14 +81,12 @@ class AllocateStepper extends React.Component<Props> {
         return (
             <div className={classes.container}>
                 <div className={classes.stepContainer}>
-                    <Stepper
-                        orientation="vertical"
-                        activeStep={this.props.activeStep}
+                    <List
                     >
                         {
                             steps.map(this.renderStep)
                         }
-                    </Stepper>
+                    </List>
                 </div>
 
                 <div className={classes.stepContentContainer}>

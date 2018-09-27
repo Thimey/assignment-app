@@ -16,6 +16,7 @@ import jon from '../assets/jon.png'
 import joyce from '../assets/joyce.png'
 import kirk from '../assets/kirk.png'
 import line from '../assets/line.png'
+import mark from '../assets/mark.png'
 import marko from '../assets/marko.png'
 import niek from '../assets/niek.png'
 import noel from '../assets/noel.png'
@@ -37,6 +38,9 @@ export default function getPic(worker : Worker) {
 
         case 'marko':
             return marko
+
+        case 'mark':
+            return mark
 
         case 'noel':
             return noel

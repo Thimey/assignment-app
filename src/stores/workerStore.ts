@@ -1,6 +1,7 @@
 import { observable, action, computed, values, ObservableMap } from 'mobx'
 
 import { Worker } from '../data'
+import modelStore from './modelStore'
 
 class WorkerStore {
     private workerMap : ObservableMap<number, Worker> = observable.map()
@@ -10,6 +11,8 @@ class WorkerStore {
         workers.forEach(worker =>
             this.workerMap.set(worker.id, worker)
         )
+
+        modelStore.setSelectedWorkerIds(this.workers.map(w => w.id))
     }
 
     @action.bound

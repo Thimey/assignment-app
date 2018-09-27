@@ -144,7 +144,7 @@ class AllocatedWorkerMatrix extends React.Component<Props> {
                                 cellWidthPx={SCHEDULE_CELL_WIDTH_PX}
                                 cellHeaderHeightPx={SCHEDULE_HEADER_CELL_HEIGHT_PX}
                                 cellContentHeightPx={SCHEDULE_CONTENT_CELL_HEIGHT_PX}
-                                cellOverlays={allocationSolutionStore.allocatedScheduledTasks}
+                                cellOverlays={allocationSolutionStore.getAllocatedScheduledTasks(this.workers)}
                                 renderOverlay={this.renderOverlay}
                             />
                     }

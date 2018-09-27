@@ -1,4 +1,7 @@
 import * as React from 'react'
+import { observer } from 'mobx-react'
+import { uniq } from 'ramda'
+import classnames from 'classnames'
 
 import { createStyles, withStyles, Theme, WithStyles } from '@material-ui/core'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
@@ -8,15 +11,20 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
+import { SavedConstraintBase } from '../../data'
 import { ConstraintType } from '../../solver'
 import saveConstraints from '../../actions/saveConstraints'
+
+import WorkerAvatar from '../../components/WorkerAvatar'
+
+import constraintStore from '../../stores/constraintStore'
+import workerStore from '../../stores/workerStore'
 
 import ConstraintAdder from './ConstraintAdder'
 
 const styles = (theme : Theme) => createStyles({
     container: {
         height: '100%',
-        width: '100%',
         overflow: 'scroll',
         paddingTop: '1px',
         paddingLeft: '8px',
@@ -29,8 +37,22 @@ const styles = (theme : Theme) => createStyles({
     compContainer: {
         marginTop: '16px',
     },
+    expansionPanel: {
+        alignItems: 'center',
+    },
     expandedPanel: {
         backgroundColor: theme.palette.grey["200"],
+    },
+    workersSummaryContainer: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        marginLeft: '8px'
+    },
+    workerAvatar: {
+        marginLeft: '4px',
+    },
+    collapsedConstraintWithWorkers: {
+        backgroundColor: theme.palette.primary.light,
     }
 })
 
@@ -45,10 +67,10 @@ export interface ConstraintsDetails {
     id : ConstraintType
     name : string
     info : string
-    comp : JSX.Element | null
+    comp : ((constraints : SavedConstraintBase[]) => JSX.Element) | null
 }
 
-
+@observer
 class Constraints extends React.Component<Props, State> {
     state : State = { expanded: [] }
 
@@ -66,6 +88,22 @@ class Constraints extends React.Component<Props, State> {
 
     private saveConstraints = () => {
         saveConstraints()
+    }
+
+    private renderWorker = (workerId : number) => {
+        const worker = workerStore.getWorker(workerId)
+
+        if (!worker) {
+            return null
+        }
+
+        return (
+            <WorkerAvatar
+                key={worker.id}
+                className={this.props.classes.workerAvatar}
+                worker={worker}
+            />
+        )
     }
 
     private get constraints() : ConstraintsDetails[] {
@@ -86,60 +124,88 @@ class Constraints extends React.Component<Props, State> {
                 id: ConstraintType.cannotWork,
                 name: 'Cannot assign constraint',
                 info: 'Add constraints where workers CANNOT perform tasks',
-                comp: <ConstraintAdder type={ConstraintType.cannotWork} />
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.cannotWork} />
             },
             {
                 id: ConstraintType.mustWork,
                 name: 'Must assign constraint',
                 info: 'Add constraints where workers MUST perform tasks',
-                comp: <ConstraintAdder type={ConstraintType.mustWork} />
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.mustWork} />
             },
             {
                 id: ConstraintType.atLeastWork,
                 name: 'At least assign constraint',
                 info: 'Add constraints where workers MUST perform task(s) at LEAST once',
-                comp: <ConstraintAdder type={ConstraintType.atLeastWork} />
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.atLeastWork} />
             },
             {
                 id: ConstraintType.timeFatigueTotal,
                 name: 'Total time fatigue constraint',
                 info: 'Add constraints where workers cannot perform over a limit of time for a task(s)',
-                comp: <ConstraintAdder type={ConstraintType.timeFatigueTotal} />
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.timeFatigueTotal} />
             },
             {
                 id: ConstraintType.overallTimeFatigueTotal,
                 name: 'Overall total time fatigue constraint',
                 info: 'Add constraints where workers cannot perform over a limit of time overall for all tasks',
-                comp: <ConstraintAdder type={ConstraintType.overallTimeFatigueTotal} />
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.overallTimeFatigueTotal} />
             },
             {
                 id: ConstraintType.overallTimeFatigueConsecutive,
                 name: 'Overall consecutive time fatigue constraint',
                 info: 'Add constraints where workers cannot perform over a limit of time consecutively for all tasks',
-                comp: <ConstraintAdder type={ConstraintType.overallTimeFatigueConsecutive} />
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.overallTimeFatigueConsecutive} />
             },
             {
                 id: ConstraintType.unavailable,
                 name: 'Unavailability',
                 info: 'Add constraints where workers are not available between certain times',
-                comp: <ConstraintAdder type={ConstraintType.unavailable} />
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.unavailable} />
             },
             {
                 id: ConstraintType.buddy,
                 name: 'Buddy constraint',
                 info: 'Add constraints where workers perform tasks together',
-                comp: <ConstraintAdder type={ConstraintType.buddy} />
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.buddy} />
             },
             {
                 id: ConstraintType.nemesis,
                 name: 'Nemesis constraint',
                 info: 'Add constraints where workers cannot perform tasks together',
-                comp: <ConstraintAdder type={ConstraintType.nemesis} />
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.nemesis} />
             },
         ]
     }
 
     private renderConstraint = ({ id, name, info, comp } : ConstraintsDetails) => {
+        let constraints : SavedConstraintBase[] = []
+
+        if (id === ConstraintType.mustWork) {
+            constraints = constraintStore.mustWorkConstraints
+        } else if (id === ConstraintType.cannotWork) {
+            constraints = constraintStore.cannotWorkConstraints
+        } else if (id === ConstraintType.atLeastWork) {
+            constraints = constraintStore.atLeastWorkConstraints
+        } else if (id === ConstraintType.timeFatigueTotal) {
+            constraints = constraintStore.timeFatigueTotalConstraints
+        } else if (id === ConstraintType.overallTimeFatigueTotal) {
+            constraints = constraintStore.overallTimeFatigueTotalConstraints
+        } else if (id === ConstraintType.overallTimeFatigueConsecutive) {
+            constraints = constraintStore.overallTimeFatigueConsecutiveConstraints
+        } else if (id === ConstraintType.unavailable) {
+            constraints = constraintStore.unavailableConstraints
+        } else if (id === ConstraintType.buddy) {
+            constraints = constraintStore.buddyConstraints
+        } else if (id === ConstraintType.nemesis) {
+            constraints = constraintStore.nemesisConstraints
+        }
+
+        const workersIds = uniq(constraints.reduce((acc, c) => (
+            c.disabled
+                ? acc
+                : [...acc, ...c.workers]
+        ), []))
+
         return (
             <ExpansionPanel
                 key={id}
@@ -149,15 +215,34 @@ class Constraints extends React.Component<Props, State> {
                     expanded: this.props.classes.expandedPanel,
                 }}
             >
-                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                <ExpansionPanelSummary
+                    classes={{
+                        content: this.props.classes.expansionPanel,
+                        root: classnames({
+                            [this.props.classes.collapsedConstraintWithWorkers]: workersIds.length > 0,
+                        })
+                    }}
+                    expandIcon={<ExpandMoreIcon />}
+                >
                     <Typography variant="title">{name}</Typography>
+
+                    <div className={this.props.classes.workersSummaryContainer}>
+                        {
+                            !this.isExpanded(id) &&
+                                workersIds.map(this.renderWorker)
+
+                        }
+                    </div>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails className={this.props.classes.constraintDetails}>
                     <Typography>
                         {info}
                     </Typography>
                     <div className={this.props.classes.compContainer}>
-                        {comp}
+                        {
+                            comp !== null &&
+                            comp(constraints)
+                        }
                     </div>
                 </ExpansionPanelDetails>
             </ExpansionPanel>

@@ -1,4 +1,4 @@
-import { observable, action, ObservableMap, computed } from 'mobx'
+import { observable, action, ObservableMap } from 'mobx'
 
 import workerStore from './workerStore'
 import scheduleStore from './scheduleStore'
@@ -6,13 +6,7 @@ import { Worker, ScheduledTask } from '../data'
 
 import { getTimeOverlayPx } from '../lib/time'
 
-import { SolutionByTask, SolutionByWorker } from '../solver'
-
-export enum SolveOption {
-    noOptimisation = 'noOptimisation',
-    optimise = 'optimise',
-    optimal = 'optimal',
-}
+import { SolutionByTask, SolutionByWorker, SolveOption } from '../solver'
 
 class AllocationSolutionStore {
     private solutionByTaskMap : ObservableMap<string, number[]> = observable.map()
@@ -115,19 +109,11 @@ class AllocationSolutionStore {
         return []
     }
 
-    @computed
-    public get allocatedScheduledTasks() {
+    public getAllocatedScheduledTasks(workers : Worker[]) {
         const selectedSchedule = scheduleStore.selectedSchedule
 
-        // if (selectedSchedule) {
-        //     const scheduledTasks = selectedSchedule.tasks
-        //     workerStore.workers.map(worker =>
-        //         this.getWorkerAllocated(worker.id, scheduledTasks)
-        //     )
-        // }
-
         if (selectedSchedule) {
-            return workerStore.workers.reduce((acc, worker) => ([
+            return workers.reduce((acc, worker) => ([
                 ...acc,
                 selectedSchedule.tasks
                     .filter(schTask => {

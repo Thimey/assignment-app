@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { computed } from 'mobx'
 import { observer } from 'mobx-react'
 import { differenceWith, uniq } from 'ramda'
 
@@ -11,15 +12,17 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 
 import { Worker } from '../../data'
+import { SolveOption } from '../../solver'
 import SelectWorkers from '../../components/SelectWorkers'
-import AllocateStepper from '../../components/AllocateStepper'
+import ModelSidebar from '../../components/ModelSidebar'
 
 import { filterWorkers } from '../../lib/filterWorkers'
+import allocate from '../../actions/allocate'
 
 import scheduleStore from '../../stores/scheduleStore'
 import workerStore from '../../stores/workerStore'
-import { SolveOption } from '../../stores/allocationSolutionStore'
-import allocate from '../../actions/allocate'
+import modelStore from '../../stores/modelStore'
+
 import CostMatrix from '../CostMatrix'
 
 import SolverOptions from './SolverOptions'
@@ -35,6 +38,7 @@ const styles = createStyles({
         display: 'flex',
         alignItems: 'center',
         marginBottom: '8px',
+        justifyContent: 'center',
     },
     stepperContainer: {
 
@@ -46,11 +50,15 @@ const styles = createStyles({
         overflow: 'scroll',
     },
     actionsContainer: {
-        marginBottom: '20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
+        height: '85px',
+    },
+    selectWorkers: {
+        height: 'calc(100% - 85px)',
+        overflow: 'scroll',
     },
     filter: {
         marginRight: '16px',
@@ -60,50 +68,32 @@ const styles = createStyles({
     selectAll: {
         marginRight: '8px',
         width: '180px',
+    },
+    paper: {
+        paddingLeft: '4px',
+        paddingRight: '4px',
     }
 })
-
-const DEFAULT_TIME_LIMIT_MINS = 3
 
 export interface Props extends WithStyles<typeof styles> {}
 
 export interface State {
     open : boolean
     filter : string
-    selectedWorkerIds : number[]
-    selectedSolution : SolveOption
-    timeLimit : number | null
     activeStep : number
 }
 
 @observer
 export class AllocateSchedule extends React.Component<Props, State> {
     state : State = {
-        selectedWorkerIds: [
-            ...workerStore.workers.map(w => w.id)
-        ],
         open: false,
         filter: '',
-        selectedSolution: SolveOption.noOptimisation,
-        timeLimit: null,
         activeStep: 0,
     }
 
     private setStep = (step : number) => this.setState({
         activeStep: step,
     })
-
-    private handleNext = () => {
-        this.setState(state => ({
-            activeStep: state.activeStep + 1,
-        }))
-    }
-
-    private handleBack = () => {
-        this.setState(state => ({
-            activeStep: state.activeStep - 1,
-        }))
-    }
 
     private handleFilterChange = (e : any) => {
         this.setState({
@@ -121,71 +111,57 @@ export class AllocateSchedule extends React.Component<Props, State> {
 
     private handleClose = () => this.setState({
         open: false,
-        selectedWorkerIds: [],
         activeStep: 0,
     })
 
+    @computed
     private get allSelected() {
         return !differenceWith(
-            ({id}, id2) => id === id2,
+            ({ id }, id2) => id === id2,
             this.filteredWorkers,
-            this.state.selectedWorkerIds
+            modelStore.selectedWorkerIds
         ).length
     }
 
     private handleSelectOrDeSelectAll = () => {
         const newSelectedWorkerIds = this.allSelected
-            ? this.state.selectedWorkerIds.filter(id => !this.filteredWorkers.find(w => w.id === id))
+            ? modelStore.selectedWorkerIds.filter(id => !this.filteredWorkers.find(w => w.id === id))
             : uniq([
-                ...this.state.selectedWorkerIds,
+                ...modelStore.selectedWorkerIds,
                 ...this.filteredWorkers.map(({ id }) => id),
             ])
 
-        this.setState({
-            selectedWorkerIds: newSelectedWorkerIds
-        })
+        modelStore.setSelectedWorkerIds(newSelectedWorkerIds)
     }
 
     private handleWorkerSelectedOrDeselected = (worker : Worker) => {
-        const newSelectedWorkerIds = this.state.selectedWorkerIds.indexOf(worker.id) < 0
-            ? [...this.state.selectedWorkerIds, worker.id]
-            : this.state.selectedWorkerIds.filter(workerId => worker.id !== workerId)
+        const newSelectedWorkerIds = modelStore.selectedWorkerIds.indexOf(worker.id) < 0
+            ? [...modelStore.selectedWorkerIds, worker.id]
+            : modelStore.selectedWorkerIds.filter(workerId => worker.id !== workerId)
 
-        this.setState({
-            selectedWorkerIds: newSelectedWorkerIds
-        })
-    }
-
-    private get canAllocate() {
-        return scheduleStore.selectedSchedule && this.state.selectedWorkerIds.length
+        modelStore.setSelectedWorkerIds(newSelectedWorkerIds)
     }
 
     private handleAllocate = () => {
-        if (this.canAllocate) {
+        if (modelStore.canAllocate) {
             this.handleClose()
 
             allocate({
                 schedule: scheduleStore.selectedSchedule!,
-                selectedWorkerIds: this.state.selectedWorkerIds,
-                solverOption: this.state.selectedSolution,
-                time: this.state.timeLimit,
+                selectedWorkerIds: modelStore.selectedWorkerIds,
+                solverOption: modelStore.selectedSolution,
+                time: modelStore.timeLimit,
             })
         }
     }
 
     private handleSolutionOptionSelect = (option : SolveOption) => {
-        this.setState({
-            selectedSolution: option,
-            timeLimit: option !== SolveOption.optimise
-                ? null
-                : DEFAULT_TIME_LIMIT_MINS
-        })
+        modelStore.setSolverOption(option)
+        modelStore.setTimeLimit(null)
     }
 
     private handleTimeLimitChange = (timeLimit : number) => {
-        this.setState({
-            timeLimit,
-        })
+        modelStore.setTimeLimit(timeLimit)
     }
 
     private get steps() {
@@ -196,9 +172,9 @@ export class AllocateSchedule extends React.Component<Props, State> {
                 label: 'Solver options',
                 comp: (
                     <SolverOptions
-                        selectedSolution={this.state.selectedSolution}
+                        selectedSolution={modelStore.selectedSolution}
                         onSolutionOptionSelect={this.handleSolutionOptionSelect}
-                        timeLimit={this.state.timeLimit}
+                        timeLimit={modelStore.timeLimit}
                         onTimeLimitChange={this.handleTimeLimitChange}
 
                     />)
@@ -228,11 +204,14 @@ export class AllocateSchedule extends React.Component<Props, State> {
                                 }
                             </Button>
                         </div>
-                        <SelectWorkers
-                            selectedWorkerIds={this.state.selectedWorkerIds}
-                            workers={this.filteredWorkers}
-                            onSelect={this.handleWorkerSelectedOrDeselected}
-                        />
+
+                        <div className={classes.selectWorkers}>
+                            <SelectWorkers
+                                selectedWorkerIds={modelStore.selectedWorkerIds}
+                                workers={this.filteredWorkers}
+                                onSelect={this.handleWorkerSelectedOrDeselected}
+                            />
+                        </div>
                     </div>
                 )
             },
@@ -243,44 +222,9 @@ export class AllocateSchedule extends React.Component<Props, State> {
             {
                 label: 'Cost matrix',
                 comp: <CostMatrix />,
-                disabled: true,
+                disabled: modelStore.selectedSolution === SolveOption.noOptimisation,
             },
         ]
-    }
-
-    private renderActionControls() {
-        const { activeStep } = this.state
-
-        if (this.state.activeStep !== this.steps.length) {
-            return (
-                <div>
-                    <Button
-                        disabled={activeStep === 0}
-                        onClick={this.handleBack}
-                    >
-                        Back
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={this.handleNext}
-                    >
-                        {activeStep === this.steps.length - 1 ? 'Finish' : 'Next'}
-                    </Button>
-                </div>
-            )
-        }
-
-        return (
-            <Button
-                variant="raised"
-                color="secondary"
-                onClick={this.handleAllocate}
-                disabled={!this.canAllocate}
-            >
-                Allocate
-            </Button>
-        )
     }
 
     render() {
@@ -289,38 +233,45 @@ export class AllocateSchedule extends React.Component<Props, State> {
         return (
             <React.Fragment>
                 <Button color="secondary" onClick={this.handleOpen}>
-                    Allocate
+                    Model
                 </Button>
 
                 <Dialog
                     fullScreen
                     open={this.state.open}
                     onClose={this.handleClose}
+                    classes={{
+                        paper: classes.paper,
+                    }}
                 >
                     <DialogTitle disableTypography>
                         <div className={classes.headerContainer}>
-                            <Typography variant="title">
+                            <Typography variant="display2">
                                 Assignment model
                             </Typography>
                         </div>
 
                     </DialogTitle>
 
-                    <AllocateStepper
+                    <ModelSidebar
                         onLabelClick={this.setStep}
                         activeStep={this.state.activeStep}
                         steps={this.steps}
                     />
 
                     <DialogActions>
-                        {
-                            this.renderActionControls()
-                        }
-
                         <Button onClick={this.handleClose}>
-                            Cancel
+                            Close
                         </Button>
 
+                        <Button
+                            variant="raised"
+                            color="secondary"
+                            onClick={this.handleAllocate}
+                            disabled={!modelStore.canAllocate}
+                        >
+                            Allocate
+                        </Button>
                     </DialogActions>
                 </Dialog>
             </React.Fragment>

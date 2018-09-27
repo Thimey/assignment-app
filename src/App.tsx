@@ -36,12 +36,12 @@ const styles = createStyles({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        margin: '8px',
+        paddingLeft: '8px',
+        paddingRight: '8px',
         height: '100vh',
-        width: '100%',
     },
     header: {
-        height: '60px',
+        height: '80px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -53,7 +53,7 @@ const styles = createStyles({
         alignItems: 'center',
     },
     matrixContainer: {
-        height: 'calc(100% - 50px)',
+        height: 'calc(100% - 80px)',
         width: '100%',
     }
 })

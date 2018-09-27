@@ -19,6 +19,7 @@ export interface Props extends WithStyles<typeof styles> {
     worker : Worker
     className ?: string
     selected ?: boolean
+    key ?: any
 }
 
 function WorkerAvatar({
@@ -26,9 +27,11 @@ function WorkerAvatar({
     className,
     worker,
     selected = true,
+    key,
 } : Props) {
     return (
         <Avatar
+            key={key}
             title={worker.name}
             className={classnames(className, {
                 [classes.selected]: selected,

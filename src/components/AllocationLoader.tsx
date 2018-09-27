@@ -8,7 +8,8 @@ import DialogActions from '@material-ui/core/DialogActions'
 import Typography from '@material-ui/core/Typography'
 
 import { Worker } from '../data'
-import allocationSolutionStore, { SolveOption } from '../stores/allocationSolutionStore'
+import { SolveOption } from '../solver'
+import allocationSolutionStore from '../stores/allocationSolutionStore'
 
 import WorkerAvatar from './WorkerAvatar'
 import SolverProgress from './SolverProgress'

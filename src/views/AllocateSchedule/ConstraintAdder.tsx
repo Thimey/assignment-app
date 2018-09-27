@@ -21,6 +21,7 @@ import {
     Worker,
     Task,
     Range,
+    SavedConstraintBase,
 } from '../../data'
 
 import WorkerPicker from '../../components/WorkerPicker'
@@ -32,7 +33,7 @@ const styles = createStyles({
     container: {
     },
     workerPickerContainer: {
-        width: '400px',
+        width: '30%',
     },
     constraintContainer: {
         marginTop: '16px',
@@ -54,7 +55,7 @@ const styles = createStyles({
         alignItems: 'center',
     },
     taskPickerContainer: {
-        width: '400px',
+        width: '40%',
     },
     addButton: {
         marginTop: '16px',
@@ -67,6 +68,7 @@ const styles = createStyles({
 
 export interface Props extends WithStyles<typeof styles> {
     type : ConstraintType
+    constraints : SavedConstraintBase[]
     color ?: string
 }
 
@@ -304,31 +306,9 @@ class MustCannotConstraint extends React.Component<Props, State> {
 
     render () {
         const {
-            type,
             classes,
+            constraints,
         } = this.props
-
-        let constraints = [] as any
-
-        if (type === ConstraintType.mustWork) {
-            constraints = constraintStore.mustWorkConstraints
-        } else if (type === ConstraintType.cannotWork) {
-            constraints = constraintStore.cannotWorkConstraints
-        } else if (type === ConstraintType.atLeastWork) {
-            constraints = constraintStore.atLeastWorkConstraints
-        } else if (type === ConstraintType.timeFatigueTotal) {
-            constraints = constraintStore.timeFatigueTotalConstraints
-        } else if (type === ConstraintType.overallTimeFatigueTotal) {
-            constraints = constraintStore.overallTimeFatigueTotalConstraints
-        } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
-            constraints = constraintStore.overallTimeFatigueConsecutiveConstraints
-        } else if (type === ConstraintType.unavailable) {
-            constraints = constraintStore.unavailableConstraints
-        } else if (type === ConstraintType.buddy) {
-            constraints = constraintStore.buddyConstraints
-        } else if (type === ConstraintType.nemesis) {
-            constraints = constraintStore.nemesisConstraints
-        }
 
         return (
             <React.Fragment>

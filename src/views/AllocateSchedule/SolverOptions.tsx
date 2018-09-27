@@ -8,8 +8,8 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import InfoIcon from '@material-ui/icons/Info'
 
+import { SolveOption } from '../../solver'
 import InfoList from '../../components/InfoList'
-import { SolveOption } from '../../stores/allocationSolutionStore'
 
 const styles = createStyles({
     container: {

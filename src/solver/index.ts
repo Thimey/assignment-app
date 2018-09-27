@@ -1,5 +1,10 @@
 import { Worker, Task, ScheduledTask, CostMatrix, Time } from '../data'
-import { SolveOption } from '../stores/allocationSolutionStore'
+
+export enum SolveOption {
+    noOptimisation = 'noOptimisation',
+    optimise = 'optimise',
+    optimal = 'optimal',
+}
 
 export interface ScheduledTaskForSolver extends Pick<ScheduledTask, 'id' | 'startTime' | 'endTime'> {
     task : Task

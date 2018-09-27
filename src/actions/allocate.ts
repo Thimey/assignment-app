@@ -1,7 +1,7 @@
 
 import { action } from 'mobx'
 
-import { solveAllocation } from '../solver'
+import { solveAllocation, SolveOption } from '../solver'
 import { Schedule, Task, Worker } from '../data'
 
 import taskStore from '../stores/taskStore'
@@ -9,7 +9,7 @@ import workerStore from '../stores/workerStore'
 import scheduleStore from '../stores/scheduleStore'
 import constraintStore from '../stores/constraintStore'
 import costStore from '../stores/costStore'
-import allocationSolutionStore, { SolveOption } from '../stores/allocationSolutionStore'
+import allocationSolutionStore from '../stores/allocationSolutionStore'
 
 
 export default action('allocate', async ({
