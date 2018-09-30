@@ -43,7 +43,7 @@ class ConstraintStore {
         this.overallTimeFatigueConsecutiveConstraints.replace(constraints.overallTimeFatigueConsecutive)
         this.unavailableConstraints.replace(constraints.unavailable)
         this.buddyConstraints.replace(constraints.buddy)
-        this.nemesisConstraints.replace(constraints.buddy)
+        this.nemesisConstraints.replace(constraints.nemesis)
     }
 
     @action.bound
@@ -67,6 +67,27 @@ class ConstraintStore {
         } else if (type === ConstraintType.nemesis) {
             this.nemesisConstraints[index] = data
         }
+    }
+
+    private setAllDisableEnable = (constraints : SavedConstraintBase[], disabled : boolean) => {
+        return constraints.map(c => ({ ...c, disabled }))
+    }
+
+    @action.bound
+    public disableEnableAllConstraints(newDisabled : boolean) {
+        const newConstraints = {
+            mustWork: this.setAllDisableEnable(this.mustWorkConstraints, newDisabled),
+            cannotWork: this.setAllDisableEnable(this.cannotWorkConstraints, newDisabled),
+            atLeastWork: this.setAllDisableEnable(this.atLeastWorkConstraints, newDisabled),
+            timeFatigueTotal: this.setAllDisableEnable(this.timeFatigueTotalConstraints, newDisabled),
+            overallTimeFatigueTotal: this.setAllDisableEnable(this.overallTimeFatigueTotalConstraints, newDisabled),
+            overallTimeFatigueConsecutive: this.setAllDisableEnable(this.overallTimeFatigueConsecutiveConstraints, newDisabled),
+            unavailable: this.setAllDisableEnable(this.unavailableConstraints, newDisabled),
+            buddy: this.setAllDisableEnable(this.buddyConstraints, newDisabled),
+            nemesis: this.setAllDisableEnable(this.nemesisConstraints, newDisabled),
+        }
+
+        this.addConstraints(newConstraints as any)
     }
 
     @action.bound
@@ -106,6 +127,7 @@ class ConstraintStore {
             this.overallTimeFatigueConsecutiveConstraints.push({
                 workers: [],
                 limit: 30,
+                breakTime: 15,
                 disabled: false,
             })
         } else if (type === ConstraintType.unavailable) {

@@ -27,10 +27,13 @@ class AllocationSolutionStore {
     }
 
     @observable
-    public solving : {
+    public solvedOption : {
         option : SolveOption
         time : number | null
     } | null = null
+
+    @observable
+    public solving = false
 
     @observable
     public allocatingWorkers : Worker[] = []
@@ -42,12 +45,13 @@ class AllocationSolutionStore {
 
     @action.bound
     public setSolvingSolution(option : SolveOption, time : number | null = null) {
-        this.solving = { option, time }
+        this.solvedOption = { option, time }
+        this.solving = true
     }
 
     @action.bound
     public finishedSolving() {
-        this.solving = null
+        this.solving = false
     }
 
     @action.bound

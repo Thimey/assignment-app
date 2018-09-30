@@ -3,10 +3,11 @@ import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles, Typography } from '@material-ui/core'
 import WorkerIcon from '@material-ui/icons/SentimentSatisfied'
 import ScheduleIcon from '@material-ui/icons/Schedule'
+import Button from '@material-ui/core/Button'
 
 import ScheduleMatrix from './views/ScheduleMatrix'
 import AllocatedWorkerMatrix from './views/AllocatedWorkerMatrix'
-import AllocateSchedule from './views/AllocateSchedule'
+import Model from './views/Model'
 
 import {
     getWorkers,
@@ -15,6 +16,8 @@ import {
     getCostMatrix,
     getConstraints,
 } from './data'
+import { SolveOption } from './solver'
+
 
 import taskStore from './stores/taskStore'
 import scheduleStore from './stores/scheduleStore'
@@ -24,6 +27,7 @@ import constraintStore from './stores/constraintStore'
 import allocationSolutionStore from './stores/allocationSolutionStore'
 
 import AllocationLoader from './components/AllocationLoader'
+import AllocateButton from './components/AllocateButton'
 
 export enum Display {
     allocatedWorkers = 'allocatedWorkers',
@@ -51,6 +55,9 @@ const styles = createStyles({
     subHeader: {
         display: 'flex',
         alignItems: 'center',
+    },
+    allocatedInfoContainer: {
+        display: 'flex',
     },
     matrixContainer: {
         height: 'calc(100% - 80px)',
@@ -88,11 +95,24 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
             : Display.schedule
     }))
 
+    private handleClearSolution = () => {
+        allocationSolutionStore.purgeSolution()
+        this.setState({ display: Display.schedule })
+    }
+
     private renderToggleIcon() {
         if (this.state.display === Display.schedule) {
-            return <WorkerIcon onClick={this.toggleMatrixDisplay} />
+            return (
+                <Button onClick={this.toggleMatrixDisplay}>
+                    <WorkerIcon />
+                </Button>
+            )
         } else {
-            return <ScheduleIcon onClick={this.toggleMatrixDisplay} />
+            return (
+                <Button onClick={this.toggleMatrixDisplay}>
+                    <ScheduleIcon />
+                </Button>
+            )
         }
     }
 
@@ -108,15 +128,38 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                         Task Assignment
                     </Typography>
 
-                    <div className={classes.subHeader}>
+                    <div className={classes.allocatedInfoContainer}>
                         {
-                            scheduleStore.selectedSchedule &&
-                            <AllocateSchedule />
+                            (
+                                allocationSolutionStore.solvedOption &&
+                                allocationSolutionStore.solvedOption.option !== SolveOption.noOptimisation &&
+                                allocationSolutionStore.objectiveValue) &&
+                            <Typography variant="display1" color='primary'>
+                                {
+                                    allocationSolutionStore.objectiveValue
+                                }
+                            </Typography>
                         }
 
                         {
                             allocationSolutionStore.solutionStatus &&
+                            <Button onClick={this.handleClearSolution}>
+                                Clear
+                            </Button>
+                        }
+                    </div>
+
+                    <div className={classes.subHeader}>
+                        {
+                            allocationSolutionStore.solutionStatus &&
                             this.renderToggleIcon()
+                        }
+
+                        <AllocateButton />
+
+                        {
+                            scheduleStore.selectedSchedule &&
+                            <Model />
                         }
                     </div>
                 </div>

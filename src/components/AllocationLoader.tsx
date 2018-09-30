@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { computed } from 'mobx'
 import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
@@ -47,6 +48,7 @@ const solverOptionsDisplay = {
     [SolveOption.optimal]: 'Finding optimal solution',
 }
 
+
 @observer
 class AllocationLoader extends React.Component<Props, State> {
     state : State = { }
@@ -59,6 +61,21 @@ class AllocationLoader extends React.Component<Props, State> {
 
     private handleCloseLoader = () => {
         allocationSolutionStore.finishedSolving()
+
+        if (!allocationSolutionStore.solutionStatus) {
+            // allocationSolutionStore.purgeSolution()
+        }
+    }
+
+    @computed
+    private get buttonDisplay() {
+        if (!allocationSolutionStore.solutionStatus || !allocationSolutionStore.solvedOption) {
+            return 'No solution'
+        }
+
+        return allocationSolutionStore.solvedOption.option === SolveOption.noOptimisation
+            ? 'Solution found!'
+            : `Solution found! (${allocationSolutionStore.objectiveValue})`
     }
 
     render() {
@@ -68,14 +85,14 @@ class AllocationLoader extends React.Component<Props, State> {
 
         return (
             <Dialog
-                open={allocationSolutionStore.solving !== null}
+                open={allocationSolutionStore.solving}
             >
                 <DialogContent>
                     <div>
                         <Typography className={classes.header} variant="title">
                             {
-                                allocationSolutionStore.solving &&
-                                solverOptionsDisplay[allocationSolutionStore.solving.option]
+                                allocationSolutionStore.solvedOption &&
+                                solverOptionsDisplay[allocationSolutionStore.solvedOption.option]
                             }
                         </Typography>
 
@@ -90,8 +107,8 @@ class AllocationLoader extends React.Component<Props, State> {
                             <div className={classes.progress}>
                                 <SolverProgress
                                     time={
-                                        allocationSolutionStore.solving
-                                            ? allocationSolutionStore.solving.time
+                                        allocationSolutionStore.solvedOption
+                                            ? allocationSolutionStore.solvedOption.time
                                             : null
                                     }
                                 />
@@ -106,9 +123,7 @@ class AllocationLoader extends React.Component<Props, State> {
                         allocationSolutionStore.solutionStatus !== null &&
                         <Button onClick={this.handleCloseLoader}>
                             {
-                                allocationSolutionStore.solutionStatus
-                                    ? `Solution found! (${allocationSolutionStore.objectiveValue})`
-                                    : 'No solution'
+                                this.buttonDisplay
                             }
                         </Button>
                     }

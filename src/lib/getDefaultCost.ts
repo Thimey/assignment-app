@@ -8,17 +8,24 @@ function randomInRange(min : number, max : number) {
     return Math.round(Math.random() * (max - min) + min)
 }
 
-function costDemo(worker : Worker) {
+function costDemo(
+    worker : Worker,
+    type : WorkerTags
+) {
     if (hasTag(WorkerTags.sales, worker)) {
-        return randomInRange(1, 10)
+        if (hasTag(type, worker)) {
+            return randomInRange(1, 10)
+        }
+
+        return randomInRange(10, 20)
     }
 
     if (hasTag(WorkerTags.cs, worker)) {
-        return randomInRange(20, 40)
+        return randomInRange(30, 50)
     }
 
     if (hasTag(WorkerTags.marketing, worker)) {
-        return randomInRange(40, 70)
+        return randomInRange(50, 70)
     }
 
     if (hasTag(WorkerTags.ux, worker)) {
@@ -68,6 +75,29 @@ function costCoffee(worker : Worker) {
     return randomInRange(80, 100)
 }
 
+function costTraining(worker : Worker) {
+    if (hasTag(WorkerTags.cs, worker)) {
+        return randomInRange(1, 10)
+    }
+
+    return randomInRange(80, 100)
+}
+
+function costRelease(
+    worker : Worker,
+    type : WorkerTags
+) {
+    if (hasTag(WorkerTags.engineer, worker)) {
+        if (hasTag(type, worker)) {
+            return randomInRange(1, 10)
+        }
+
+        return randomInRange(10, 20)
+    }
+
+    return randomInRange(90, 100)
+}
+
 function getDefaultCost(worker : Worker, task : Task) {
     if (task.id === 0 || task.id === 1) {
         return costFifa(worker)
@@ -78,17 +108,42 @@ function getDefaultCost(worker : Worker, task : Task) {
     }
 
     if (task.id === 3) {
-        return costDemo(worker)
+        return costDemo(worker, WorkerTags.syd)
     }
 
     if (task.id === 4) {
+        return costDemo(worker, WorkerTags.usa)
+    }
+
+    if (task.id === 5) {
+        return costDemo(worker, WorkerTags.melb)
+    }
+
+    if (task.id === 6) {
+        return costDemo(worker, WorkerTags.bris)
+    }
+
+    if (task.id === 7) {
+        return costCoffee(worker)
+    }
+
+    if (task.id === 9) {
+        return costTraining(worker)
+    }
+
+    if (task.id === 10) {
+        return costRelease(worker, WorkerTags.syd)
+    }
+
+    if (task.id === 11) {
+        return costRelease(worker, WorkerTags.prague)
+    }
+
+    if (task.id === 15) {
         return costIkea(worker)
     }
 
 
-    if (task.id === 5) {
-        return costCoffee(worker)
-    }
 
     return 10
 }

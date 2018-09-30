@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { computed } from 'mobx'
 import { observer } from 'mobx-react'
 import classnames from 'classnames'
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
@@ -7,6 +8,7 @@ import Typography from '@material-ui/core/Typography'
 
 import allocationSolutionStore from '../stores/allocationSolutionStore'
 import costStore from '../stores/costStore'
+import modelStore from '../stores/modelStore'
 import scheduleStore from '../stores/scheduleStore'
 
 import getCostColor from '../lib/getCostColor'
@@ -15,6 +17,7 @@ import { filterTask } from '../lib/filterTasks'
 
 import { Task, ScheduledTask, Worker } from '../data'
 import WorkerAvatar from './WorkerAvatar'
+import { SolveOption } from '../solver'
 
 const styles = (theme: Theme) => createStyles({
     container: {
@@ -22,10 +25,11 @@ const styles = (theme: Theme) => createStyles({
         height: '100%',
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     innerContainer: {
         height: '95%',
-        width: '95%',
+        width: 'calc(100% - 8px)',
         borderRadius: '5px',
         display: 'flex',
         flexWrap: 'wrap',
@@ -44,6 +48,9 @@ const styles = (theme: Theme) => createStyles({
     avatar: {
         width: 45,
         height: 45,
+    },
+    text: {
+        textAlign: 'center',
     }
 })
 
@@ -112,6 +119,11 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
         )
     }
 
+    @computed
+    private get showCost() {
+        return modelStore.selectedSolution !== SolveOption.noOptimisation
+    }
+
     render () {
         const {
             classes,
@@ -130,9 +142,14 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
             ? costStore.getCost(worker, task)
             : null
 
-        const backgroundStyle = (view === 'task' && worker)
-            ? getCostColor(cost!)
-            : this.getTaskAllocatedColor(allocated)
+
+        let backgroundStyle = undefined
+
+        if (this.showCost) {
+            backgroundStyle = (view === 'task' && worker)
+                ? getCostColor(cost!)
+                : this.getTaskAllocatedColor(allocated)
+        }
 
         // If task, only show if in task filter
         if (allocated && view === 'task' && !filterTask(scheduleStore.scheduleTaskFilter.toLowerCase())(task)) {
@@ -168,12 +185,17 @@ class ScheduledTaskOverlay extends React.Component<Props, State> {
                     {
                         view === 'task' && (
                             <React.Fragment>
-                                <Typography>{ task.name }</Typography>
-                                <Typography variant='caption'>
-                                    {
-                                        `(${cost})`
-                                    }
+                                <Typography className={classes.text}>
+                                    { task.name }
                                 </Typography>
+                                {
+                                    this.showCost &&
+                                    <Typography variant='caption' className={classes.text}>
+                                        {
+                                            `(${cost})`
+                                        }
+                                    </Typography>
+                                }
                             </React.Fragment>
                         )
                     }

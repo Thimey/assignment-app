@@ -22,6 +22,7 @@ import {
     Task,
     Range,
     SavedConstraintBase,
+    SavedOverallTimeFatigueConsecutiveConstraint,
 } from '../../data'
 
 import WorkerPicker from '../../components/WorkerPicker'
@@ -62,6 +63,10 @@ const styles = createStyles({
     },
     disabled: {
         opacity: 0.2,
+    },
+    title: {
+        paddingLeft: '16px',
+        paddingRight: '16px',
     }
 })
 
@@ -129,6 +134,17 @@ class MustCannotConstraint extends React.Component<Props, State> {
         )
     }
 
+    private handleBreakLimitChange = (index : number, constraint : SavedOverallTimeFatigueConsecutiveConstraint) => (e : any) => {
+        constraintStore.updateConstraint(
+            this.props.type,
+            index,
+            {
+                ...constraint,
+                breakTime: parseInt(e.target.value, 10),
+            }
+        )
+    }
+
     private handleUnavailableTimeRangeChange = (index: number, constraint: SavedUnavailableConstraint) => (range : Range) => {
         constraintStore.updateConstraint(
             this.props.type,
@@ -142,7 +158,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
 
 
     private renderTitle1() {
-        const { type } = this.props
+        const { classes, type } = this.props
+
         let title = ''
         if (type === ConstraintType.mustWork) {
             title = 'must perform all'
@@ -161,26 +178,38 @@ class MustCannotConstraint extends React.Component<Props, State> {
         } else if (type === ConstraintType.buddy) {
             title = 'work together on'
         } else if (type === ConstraintType.nemesis) {
-            title = 'work cannot together on'
+            title = 'cannot work together on'
         } else {
             return null
         }
 
         return (
-            <Typography variant="title">
+            <Typography className={classes.title} variant="title">
                 { title }
             </Typography>
         )
     }
 
     private renderTitle2() {
-        if (this.props.type !== ConstraintType.timeFatigueTotal) {
+        const { classes, type } = this.props
+
+        if (
+            type !== ConstraintType.timeFatigueTotal &&
+            type !== ConstraintType.overallTimeFatigueConsecutive
+        ) {
             return null
         }
 
+        let title = ''
+        if (type === ConstraintType.timeFatigueTotal) {
+            title = 'in'
+        } else if (type === ConstraintType.overallTimeFatigueConsecutive) {
+            title = 'min break of'
+        }
+
         return (
-            <Typography variant="title">
-                in
+            <Typography className={classes.title} variant="title">
+                { title }
             </Typography>
         )
     }
@@ -204,6 +233,30 @@ class MustCannotConstraint extends React.Component<Props, State> {
                 }}
                 onChange={this.handleTimeLimitChange(index, fatigueConstraint)}
                 value={fatigueConstraint.limit}
+                InputProps={{
+                    endAdornment: <InputAdornment position="end">mins</InputAdornment>,
+                }}
+            />
+        )
+    }
+
+    private renderBreakTimeField(index : number, constraint : SavedConstraintType) {
+        if (
+            this.props.type !== ConstraintType.overallTimeFatigueConsecutive
+        ) {
+            return null
+        }
+
+        const fatigueConstraint = constraint as SavedOverallTimeFatigueConsecutiveConstraint
+
+        return (
+            <TextField
+                type="number"
+                inputProps={{
+                    min: 1,
+                }}
+                onChange={this.handleBreakLimitChange(index, fatigueConstraint)}
+                value={fatigueConstraint.breakTime}
                 InputProps={{
                     endAdornment: <InputAdornment position="end">mins</InputAdornment>,
                 }}
@@ -298,6 +351,10 @@ class MustCannotConstraint extends React.Component<Props, State> {
 
                     {
                         this.renderTimeRangePicker(index, constraint)
+                    }
+
+                    {
+                        this.renderBreakTimeField(index, constraint)
                     }
                 </Paper>
             </div>

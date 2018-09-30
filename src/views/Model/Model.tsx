@@ -47,7 +47,10 @@ const styles = createStyles({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        overflow: 'scroll',
+        overflowY: 'scroll',
+        '&::-webkit-scrollbar': {
+            display: 'none',
+        }
     },
     actionsContainer: {
         display: 'flex',
@@ -58,7 +61,10 @@ const styles = createStyles({
     },
     selectWorkers: {
         height: 'calc(100% - 85px)',
-        overflow: 'scroll',
+        overflowY: 'scroll',
+        '&::-webkit-scrollbar': {
+            display: 'none',
+        }
     },
     filter: {
         marginRight: '16px',

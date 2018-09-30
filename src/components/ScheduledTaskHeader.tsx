@@ -12,6 +12,9 @@ const styles = createStyles({
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'column',
+    },
+    text: {
+        textAlign: 'center',
     }
 })
 
@@ -27,11 +30,11 @@ function ScheduledTaskHeader({
         <div
             className={classes.container}
         >
-            <Typography variant="body1">
+            <Typography variant="body1" className={classes.text}>
                 {task.name}
             </Typography>
 
-            <Typography variant="caption">
+            <Typography variant="caption" className={classes.text}>
                 {`(qty: ${task.qty})`}
             </Typography>
         </div>

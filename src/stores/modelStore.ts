@@ -20,6 +20,10 @@ class ModelStore {
     @action.bound
     public setSolverOption(solveOption : SolveOption) {
         this.selectedSolution = solveOption
+
+        if (solveOption === SolveOption.noOptimisation) {
+            this.timeLimit = null
+        }
     }
 
     @action.bound

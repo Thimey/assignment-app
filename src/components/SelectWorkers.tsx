@@ -10,7 +10,6 @@ const styles = createStyles({
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'center',
-        height: '100%',
     },
     compactContainer: {
         marginRight: '4px',

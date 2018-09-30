@@ -8,7 +8,8 @@ const styles = createStyles({
         justifyContent: 'center',
         height: '100%',
         width: '100%',
-    }
+        textAlign: 'center',
+    },
 })
 
 export interface Props extends WithStyles<typeof styles> {

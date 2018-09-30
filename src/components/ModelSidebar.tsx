@@ -20,9 +20,9 @@ const styles = (theme : Theme)=> createStyles({
         width: '200px',
     },
     stepContentContainer: {
-        flex: 1,
         height: '100%',
         paddingLeft: '16px',
+        width: 'calc(100% - 200px)'
     },
     activeStep: {
         backgroundColor: theme.palette.secondary.light,

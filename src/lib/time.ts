@@ -42,18 +42,26 @@ export function getTimeOverlayPx({ startTime, endTime } : ScheduledTask) {
 
 export function getEndTimeOptions(start : Time) : Time[] {
     return range(start.hour, END_TIME).reduce((acc, hour) => {
-        if (hour === END_TIME) {
-            return [ ...acc, { hour, min: 0 }]
-        }
-
-        if (hour === start.hour && start.min === 45) {
-            return acc
+        if (hour === start.hour && hour === END_TIME) {
+            return [
+                ...acc,
+                ...range(start.min + INCREMENT_MINS, 60 - INCREMENT_MINS, INCREMENT_MINS).map(min => ({ hour, min })),
+                { hour: END_TIME + 1, min: 0 },
+            ]
         }
 
         if (hour === start.hour) {
             return [
                 ...acc,
                 ...range(start.min + INCREMENT_MINS, 60 - INCREMENT_MINS, INCREMENT_MINS).map(min => ({ hour, min })),
+            ]
+        }
+
+        if (hour === END_TIME) {
+            return [
+                ...acc,
+                ...range(0, 60 - INCREMENT_MINS, INCREMENT_MINS).map(min => ({ hour, min })),
+                { hour: END_TIME + 1, min: 0 },
             ]
         }
 

@@ -25,10 +25,13 @@ import ConstraintAdder from './ConstraintAdder'
 const styles = (theme : Theme) => createStyles({
     container: {
         height: '100%',
-        overflow: 'scroll',
+        overflowY: 'scroll',
         paddingTop: '1px',
         paddingLeft: '8px',
         paddingRight: '8px',
+        '&::-webkit-scrollbar': {
+            display: 'none',
+        }
     },
     constraintDetails: {
         display: 'flex',
@@ -52,8 +55,13 @@ const styles = (theme : Theme) => createStyles({
         marginLeft: '4px',
     },
     collapsedConstraintWithWorkers: {
-        backgroundColor: theme.palette.primary.light,
-    }
+        backgroundColor: 'lightgreen',
+    },
+    constraintActionContainer: {
+        display: 'flex',
+        marginTop: '16px',
+        marginBottom: '16px',
+    },
 })
 
 export interface Props extends WithStyles<typeof styles> {
@@ -88,6 +96,10 @@ class Constraints extends React.Component<Props, State> {
 
     private saveConstraints = () => {
         saveConstraints()
+    }
+
+    private handelDisableEnableAll = (disableEnable : 'disable' | 'enable') => () => {
+        constraintStore.disableEnableAllConstraints(disableEnable === 'disable')
     }
 
     private renderWorker = (workerId : number) => {
@@ -256,12 +268,29 @@ class Constraints extends React.Component<Props, State> {
 
         return (
             <div className={classes.container}>
-                <Button onClick={this.saveConstraints}>
-                    Save constraints
-                </Button>
                 {
                     this.constraints.map(this.renderConstraint)
                 }
+
+                <div className={classes.constraintActionContainer}>
+                    <Button onClick={this.handelDisableEnableAll('enable')}>
+                        Enable all
+                    </Button>
+
+                    <Button onClick={this.handelDisableEnableAll('disable')}>
+                        Disable all
+                    </Button>
+
+                    <Button
+                        fullWidth
+                        variant='raised'
+                        color='primary'
+                        onClick={this.saveConstraints}
+                    >
+                        Save constraints
+                    </Button>
+                </div>
+
             </div>
         )
     }

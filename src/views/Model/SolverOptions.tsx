@@ -7,6 +7,8 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import InfoIcon from '@material-ui/icons/Info'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Switch from '@material-ui/core/Switch'
 
 import { SolveOption } from '../../solver'
 import InfoList from '../../components/InfoList'
@@ -36,7 +38,7 @@ export interface Props extends WithStyles<typeof styles> {
     selectedSolution : SolveOption
     onSolutionOptionSelect : (option : SolveOption) => void
     timeLimit : number
-    onTimeLimitChange : (timeLimit : number) => void
+    onTimeLimitChange : (timeLimit : number | null) => void
 }
 
 const info = [
@@ -69,6 +71,14 @@ function SolverOptions({
         onTimeLimitChange(parseInt(e.target.value, 10))
     }
 
+    const handleTimeLimitSwitch = (e : any) => {
+        onTimeLimitChange(
+            e.target.checked
+                ? 1
+                : null
+        )
+    }
+
     return (
         <div className={classes.container}>
             <div className={classes.infoContainer}>
@@ -98,19 +108,37 @@ function SolverOptions({
                 <br/>
 
                 {
-                    timeLimit !== null &&
-                    <TextField
-                        type="number"
-                        inputProps={{
-                            min: 1,
-                        }}
-                        onChange={handleTimeLimitChange}
-                        value={timeLimit}
-                        InputProps={{
-                            endAdornment: <InputAdornment position="end">mins</InputAdornment>,
-                        }}
-                    />
+                    selectedSolution !== SolveOption.noOptimisation &&
+                    <div>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={timeLimit !== null}
+                                    onChange={handleTimeLimitSwitch}
+                                    value="timelimit"
+                                    color="primary"
+                                />
+                            }
+                            label="Time limit"
+                        />
+
+                        {
+                            timeLimit !== null &&
+                            <TextField
+                                type="number"
+                                inputProps={{
+                                    min: 1,
+                                }}
+                                onChange={handleTimeLimitChange}
+                                value={timeLimit}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">mins</InputAdornment>,
+                                }}
+                            />
+                        }
+                    </div>
                 }
+
             </div>
 
         </div>

@@ -114,11 +114,17 @@ export function transformOverallTimeFatigueTotalConstraints(groups : WorkerTaskG
 export function transformConsecutiveFatigueConstraints(groups : WorkerTaskGroup[]) {
     const constraintsObj = {}
 
-    groups.forEach(({workers, limit }) => {
+    groups.forEach(({ workers, limit, breakTime }) => {
         if (constraintsObj[limit]) {
-            constraintsObj[limit] = uniq([constraintsObj[limit], ...workers])
+            constraintsObj[limit] = {
+                ...constraintsObj[limit],
+                workers: uniq([...constraintsObj[limit].workers, ...workers]),
+            }
         } else {
-            constraintsObj[limit] = workers
+            constraintsObj[limit] = {
+                breakTime,
+                workers,
+            }
         }
     })
 
@@ -138,17 +144,17 @@ export function transformUnavailableConstraints(groups : WorkerTaskGroup[]) {
 }
 
 export function transformBuddyNemesisConstraints(groups : WorkerTaskGroup[]) {
-    const constraintsObj = {}
+    // const constraintsObj = {}
 
-    groups.forEach(({workers, tasks }) => {
-        tasks!.forEach(taskId => {
-            if (constraintsObj[taskId]) {
-                constraintsObj[taskId] = uniq([...constraintsObj[taskId], ...workers])
-            } else {
-                constraintsObj[taskId] = [...workers]
-            }
-        })
-    })
+    // groups.forEach(({workers, tasks }) => {
+    //     tasks!.forEach(taskId => {
+    //         if (constraintsObj[taskId]) {
+    //             constraintsObj[taskId] = uniq([...constraintsObj[taskId], ...workers])
+    //         } else {
+    //             constraintsObj[taskId] = [...workers]
+    //         }
+    //     })
+    // })
 
-    return constraintsObj
+    return groups
 }

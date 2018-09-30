@@ -14,7 +14,13 @@ export enum WorkerTags {
     marketing = 'marketing',
     fifa = 'fifa',
     marioKart = 'marioKart',
-    coffee = 'coffee'
+    coffee = 'coffee',
+    prague = 'prague',
+    bris = 'bris',
+    syd = 'syd',
+    melb = 'melb',
+    usa = 'usa',
+    leadership = 'leadership',
 }
 
 export interface Worker {
@@ -72,6 +78,7 @@ export interface SavedOverallTimeFatigueTotalConstraint extends SavedConstraintB
 
 export interface SavedOverallTimeFatigueConsecutiveConstraint extends SavedConstraintBase {
     limit : number
+    breakTime : number
 }
 
 export interface Range {
