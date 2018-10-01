@@ -1,7 +1,6 @@
 import { observable, action, computed, values, ObservableMap } from 'mobx'
 
 import { getTimeOverlayPx } from '../lib/time'
-import taskStore from './taskStore'
 import { Schedule, Time, Task, Worker } from '../data'
 
 export interface TimeTask {
@@ -67,8 +66,7 @@ class ScheduleStore {
             : null
     }
 
-    @computed
-    public get selectedScheduledTasks() {
+    public getSelectedScheduledTasks(tasks : Task[]) {
         const selectedSchedule = this.selectedScheduleId === null
             ? null
             : this.schedules.find(s => s.id === this.selectedScheduleId)
@@ -77,7 +75,7 @@ class ScheduleStore {
             return []
         }
 
-        return taskStore.tasks.reduce((acc, task) => ([
+        return tasks.reduce((acc, task) => ([
             ...acc,
             selectedSchedule.tasks
                 .filter(schTask => schTask.taskId === task.id )

@@ -164,7 +164,7 @@ class ScheduleMatrix extends React.Component<Props, State> {
                                     cellWidthPx={SCHEDULE_CELL_WIDTH_PX}
                                     cellHeaderHeightPx={SCHEDULE_HEADER_CELL_HEIGHT_PX}
                                     cellContentHeightPx={SCHEDULE_CONTENT_CELL_HEIGHT_PX}
-                                    cellOverlays={scheduleStore.selectedScheduledTasks}
+                                    cellOverlays={scheduleStore.getSelectedScheduledTasks(this.tasks)}
                                     renderOverlay={this.renderOverlay}
                                 />
                         }
