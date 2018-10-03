@@ -206,6 +206,31 @@ class ConstraintStore {
             nemesis: toJS(this.nemesisConstraints) as any,
         }
     }
+
+    @observable
+    public donuts : boolean = false
+
+    @action.bound
+    public toggleDonuts() {
+        this.donuts = !this.donuts
+
+        if (this.donuts) {
+            this.showGithubSnack()
+        }
+    }
+
+    @observable
+    public githubSnack : boolean = false
+
+    @action.bound
+    public showGithubSnack() {
+        this.githubSnack = true
+    }
+
+    @action.bound
+    public closeGithubSnack() {
+        this.githubSnack = false
+    }
 }
 
 

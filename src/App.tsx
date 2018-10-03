@@ -4,6 +4,9 @@ import { createStyles, withStyles, WithStyles, Typography } from '@material-ui/c
 import WorkerIcon from '@material-ui/icons/SentimentSatisfied'
 import ScheduleIcon from '@material-ui/icons/Schedule'
 import Button from '@material-ui/core/Button'
+import Snackbar from '@material-ui/core/Snackbar'
+
+import chrome from './assets/chrome.png'
 
 import ScheduleMatrix from './views/ScheduleMatrix'
 import AllocatedWorkerMatrix from './views/AllocatedWorkerMatrix'
@@ -62,7 +65,14 @@ const styles = createStyles({
     matrixContainer: {
         height: 'calc(100% - 80px)',
         width: '100%',
-    }
+    },
+    chromeSnack: {
+        backgroundColor: '#f2f2f2',
+        height: 75,
+    },
+    chromeIcon: {
+        width: 55,
+    },
 })
 
 export interface State {
@@ -81,6 +91,12 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
         this.getSchedules()
         this.getCostMatrix()
         this.getConstraints()
+
+        window.addEventListener('keydown', (e : any) => {
+            if (e.key === 'Alt') {
+                constraintStore.toggleDonuts()
+            }
+        })
     }
 
     private getWorkers = async () => workerStore.addWorkers(await getWorkers())
@@ -114,6 +130,10 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                 </Button>
             )
         }
+    }
+
+    private handleSnackClose = () => {
+        constraintStore.closeGithubSnack()
     }
 
     public render() {
@@ -177,6 +197,25 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
                 </div>
 
                 <AllocationLoader />
+
+                <Snackbar
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    open={constraintStore.githubSnack}
+                    onClose={this.handleSnackClose}
+                    autoHideDuration={3000}
+
+                    ContentProps={{
+                        'aria-describedby': 'message-id',
+                        classes: {
+                            root: classes.chromeSnack,
+                        }
+                    }}
+                    message={
+                        <div>
+                            <img className={classes.chromeIcon} src={chrome} />
+                        </div>
+                    }
+                />
             </div>
         )
     }

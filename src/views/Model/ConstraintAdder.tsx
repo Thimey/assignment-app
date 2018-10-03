@@ -27,6 +27,8 @@ import {
 
 import WorkerPicker from '../../components/WorkerPicker'
 import TaskPicker from '../../components/TaskPicker'
+import DonutSwipe from '../../components/DonutSwipe'
+
 import TimeRangePicker from '../../components/TimeRangePicker'
 import constraintStore from '../../stores/constraintStore'
 
@@ -309,10 +311,22 @@ class MustCannotConstraint extends React.Component<Props, State> {
                 className={classes.constraintContainer}
             >
                 <div className={classes.actionContainer}>
-                    <Switch
-                        checked={!constraint.disabled}
-                        onChange={this.toggleDisable(index, constraint)}
-                    />
+                    {
+                        constraintStore.donuts
+                        ? (
+                            <DonutSwipe
+                                checked={!constraint.disabled}
+                                onChange={this.toggleDisable(index, constraint)}
+                            />
+                        )
+                        : (
+                            <Switch
+                                checked={!constraint.disabled}
+                                onChange={this.toggleDisable(index, constraint)}
+                            />
+                        )
+                    }
+
                     <Button onClick={this.handleRemove(index)}>
                         <RemoveIcon  />
                     </Button>
