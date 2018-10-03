@@ -22,6 +22,22 @@ class CostStore {
     public selectedCostMatrixId : number | null = null
     private savedMatricesMap : ObservableMap<number, SavedCostMatrix> = observable.map()
 
+    @observable
+    public matrixTaskFilter : string = ''
+
+    @observable
+    public matrixWorkerFilter : string = ''
+
+    @action.bound
+    public onTaskFilter(filter : string) {
+        this.matrixTaskFilter = filter
+    }
+
+    @action.bound
+    public onWorkerFilter(filter : string) {
+        this.matrixWorkerFilter = filter
+    }
+
     public getSavedMatrix(id : number) {
         return this.savedMatricesMap.get(id)
     }

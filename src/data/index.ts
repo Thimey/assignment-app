@@ -13,6 +13,7 @@ export enum WorkerTags {
     cs = 'cs',
     marketing = 'marketing',
     fifa = 'fifa',
+    frisbee = 'frisbee',
     marioKart = 'marioKart',
     coffee = 'coffee',
     prague = 'prague',
@@ -21,6 +22,9 @@ export enum WorkerTags {
     melb = 'melb',
     usa = 'usa',
     leadership = 'leadership',
+    dog = 'dog',
+    vollyball = 'vollyball',
+    brazil = 'brazil',
 }
 
 export interface Worker {

@@ -7,9 +7,6 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import CloseIcon from '@material-ui/icons/Close'
 
-import scheduleStore from '../stores/scheduleStore'
-
-
 const styles = createStyles({
     button: {
         width: '100%',
@@ -37,6 +34,10 @@ const styles = createStyles({
 })
 
 export interface Props extends WithStyles<typeof styles> {
+    onTaskChange : (value : string) => void
+    onWorkerChange : (value : string) => void
+    workerFilter : string
+    taskFilter : string
 }
 
 @observer
@@ -52,19 +53,19 @@ class CornerMatrixFilter extends React.Component<Props, { open : boolean }> {
     }
 
     private handleTaskFilterChange = (e : any) => {
-        scheduleStore.onTaskFilter(e.target.value)
+        this.props.onTaskChange(e.target.value)
     }
 
     private handleWorkerFilterChange = (e : any) => {
-        scheduleStore.onWorkerFilter(e.target.value)
+        this.props.onWorkerChange(e.target.value)
     }
 
     private clearTaskFilter = () => {
-        scheduleStore.onTaskFilter('')
+        this.props.onTaskChange('')
     }
 
     private clearWorkerFilter = () => {
-        scheduleStore.onWorkerFilter('')
+        this.props.onWorkerChange('')
     }
 
     render() {
@@ -101,7 +102,7 @@ class CornerMatrixFilter extends React.Component<Props, { open : boolean }> {
                     <div className={classes.inputContainer}>
                         <TextField
                             onChange={this.handleTaskFilterChange}
-                            value={scheduleStore.scheduleTaskFilter}
+                            value={this.props.taskFilter}
                             fullWidth
                             placeholder='Task'
                         />
@@ -116,7 +117,7 @@ class CornerMatrixFilter extends React.Component<Props, { open : boolean }> {
                     <div className={classes.inputContainer} style={{ marginTop: '8px' }}>
                         <TextField
                             onChange={this.handleWorkerFilterChange}
-                            value={scheduleStore.scheduleWorkerFilter}
+                            value={this.props.workerFilter}
                             fullWidth
                             placeholder='Worker'
                         />

@@ -108,9 +108,22 @@ class ScheduleMatrix extends React.Component<Props, State> {
         />
     )
 
+    private handleTaskFilterChange = (filter : string) => {
+        scheduleStore.onTaskFilter(filter)
+    }
+
+    private handleWorkerFilterChange = (filter : string) => {
+        scheduleStore.onWorkerFilter(filter)
+    }
+
     private renderCorner = () => {
         return (
-            <CornerMatrixFilter />
+            <CornerMatrixFilter
+                onTaskChange={this.handleTaskFilterChange}
+                onWorkerChange={this.handleWorkerFilterChange}
+                workerFilter={scheduleStore.scheduleWorkerFilter}
+                taskFilter={scheduleStore.scheduleTaskFilter}
+            />
         )
     }
 

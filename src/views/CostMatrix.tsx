@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { computed } from 'mobx'
 import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
@@ -14,6 +15,9 @@ import {
     SIDE_BAR_WIDTH_PX,
 } from '../config'
 
+import filterTasks from '../lib/filterTasks'
+import filterWorkers from '../lib/filterWorkers'
+
 import workerStore from '../stores/workerStore'
 import taskStore from '../stores/taskStore'
 import costStore from '../stores/costStore'
@@ -23,9 +27,11 @@ import NewButton from '../components/NewButton'
 import CostMatrixList from '../components/CostMatrixList'
 import WorkerCostCard from '../components/WorkerCard'
 import HeaderCell from '../components/HeaderCell'
+import CornerMatrixFilter from '../components/CornerMatrixFilter'
 
 import saveCostMatrix from '../actions/saveCostMatrix'
 import updateCurrentCostMatrix from '../actions/updateCurrentCostMatrix'
+
 
 const styles = createStyles({
     container: {
@@ -48,10 +54,20 @@ export interface Props extends WithStyles<typeof styles> {}
 
 @observer
 class CostMatrix extends React.Component<Props> {
+    @computed
+    private get tasks() {
+        return filterTasks(taskStore.tasks as any, costStore.matrixTaskFilter)
+    }
+
+    @computed
+    private get workers() {
+        return filterWorkers(workerStore.workers as any, costStore.matrixWorkerFilter)
+    }
+
     private get cells() {
-        return workerStore.workers.reduce((acc, worker) => ([
+        return this.workers.reduce((acc, worker) => ([
             ...acc,
-            taskStore.tasks.reduce((acc, task) => ([
+            this.tasks.reduce((acc, task) => ([
                 ...acc,
                 { worker, task }
             ]), [])
@@ -68,8 +84,23 @@ class CostMatrix extends React.Component<Props> {
             task={task}
         />
 
+    private handleTaskFilterChange = (filter : string) => {
+        costStore.onTaskFilter(filter)
+    }
+
+    private handleWorkerFilterChange = (filter : string) => {
+        costStore.onWorkerFilter(filter)
+    }
+
     private renderCorner = () => {
-        return <div></div>
+        return (
+            <CornerMatrixFilter
+                onTaskChange={this.handleTaskFilterChange}
+                onWorkerChange={this.handleWorkerFilterChange}
+                workerFilter={costStore.matrixWorkerFilter}
+                taskFilter={costStore.matrixTaskFilter}
+            />
+        )
     }
 
     private restoreDefault = () => {
@@ -100,8 +131,8 @@ class CostMatrix extends React.Component<Props> {
                 <div className={classes.matrixContainer}>
                     <Matrix
                         cells={this.cells}
-                        colHeaders={taskStore.tasks as Task[]}
-                        rowHeaders={workerStore.workers as Worker[]}
+                        colHeaders={this.tasks as Task[]}
+                        rowHeaders={this.workers as Worker[]}
                         renderCell={this.renderCost}
                         renderColHeader={this.renderTask}
                         renderCorner={this.renderCorner}
