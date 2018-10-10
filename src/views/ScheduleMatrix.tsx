@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { computed } from 'mobx'
+import { computed, runInAction } from 'mobx'
 import { observer } from 'mobx-react'
 import Matrix from '../components/Matrix'
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core'
@@ -113,18 +113,9 @@ class ScheduleMatrix extends React.Component<Props, State> {
     }
 
     private handleWorkerFilterChange = (filter : string) => {
-        scheduleStore.onWorkerFilter(filter)
-    }
-
-    private renderCorner = () => {
-        return (
-            <CornerMatrixFilter
-                onTaskChange={this.handleTaskFilterChange}
-                onWorkerChange={this.handleWorkerFilterChange}
-                workerFilter={scheduleStore.scheduleWorkerFilter}
-                taskFilter={scheduleStore.scheduleTaskFilter}
-            />
-        )
+        runInAction(() => {
+            scheduleStore.onWorkerFilter(filter)
+        })
     }
 
     private handleCloseTaskToSchedule = () =>
@@ -173,7 +164,12 @@ class ScheduleMatrix extends React.Component<Props, State> {
                                     renderCell={this.renderCell}
                                     renderColHeader={this.renderTime}
                                     renderRowHeader={this.renderTask}
-                                    renderCorner={this.renderCorner}
+                                    renderCorner={<CornerMatrixFilter
+                                        onTaskChange={this.handleTaskFilterChange}
+                                        onWorkerChange={this.handleWorkerFilterChange}
+                                        workerFilter={scheduleStore.scheduleWorkerFilter}
+                                        taskFilter={scheduleStore.scheduleTaskFilter}
+                                    />}
                                     cellWidthPx={SCHEDULE_CELL_WIDTH_PX}
                                     cellHeaderHeightPx={SCHEDULE_HEADER_CELL_HEIGHT_PX}
                                     cellContentHeightPx={SCHEDULE_CONTENT_CELL_HEIGHT_PX}

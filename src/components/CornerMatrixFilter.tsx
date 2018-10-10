@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { observer } from 'mobx-react'
+// import { observer } from 'mobx-react'
 import { createStyles, withStyles, WithStyles } from '@material-ui/core'
 import Popover from '@material-ui/core/Popover'
 import FilterIcon from '@material-ui/icons/Search'
@@ -40,7 +40,6 @@ export interface Props extends WithStyles<typeof styles> {
     taskFilter : string
 }
 
-@observer
 class CornerMatrixFilter extends React.Component<Props, { open : boolean }> {
     state = { open: false }
     private anchorEl : HTMLElement | null = null

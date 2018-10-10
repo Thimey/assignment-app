@@ -145,6 +145,12 @@ class Constraints extends React.Component<Props, State> {
                 comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.mustWork} />
             },
             {
+                id: ConstraintType.combinedMustWork,
+                name: 'Combined must assign constraint',
+                info: 'Add constraints where workers combined MUST perform all tasks',
+                comp: (constraints : SavedConstraintBase[]) => <ConstraintAdder constraints={constraints} type={ConstraintType.combinedMustWork} />
+            },
+            {
                 id: ConstraintType.atLeastWork,
                 name: 'At least assign constraint',
                 info: 'Add constraints where workers MUST perform task(s) at LEAST once',
@@ -194,6 +200,8 @@ class Constraints extends React.Component<Props, State> {
 
         if (id === ConstraintType.mustWork) {
             constraints = constraintStore.mustWorkConstraints
+        } else if (id === ConstraintType.combinedMustWork) {
+            constraints = constraintStore.combinedMustWorkConstraints
         } else if (id === ConstraintType.cannotWork) {
             constraints = constraintStore.cannotWorkConstraints
         } else if (id === ConstraintType.atLeastWork) {

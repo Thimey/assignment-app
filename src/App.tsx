@@ -5,8 +5,7 @@ import WorkerIcon from '@material-ui/icons/SentimentSatisfied'
 import ScheduleIcon from '@material-ui/icons/Schedule'
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
-
-import chrome from './assets/chrome.png'
+import SnackbarContent from '@material-ui/core/SnackbarContent'
 
 import ScheduleMatrix from './views/ScheduleMatrix'
 import AllocatedWorkerMatrix from './views/AllocatedWorkerMatrix'
@@ -31,6 +30,7 @@ import allocationSolutionStore from './stores/allocationSolutionStore'
 
 import AllocationLoader from './components/AllocationLoader'
 import AllocateButton from './components/AllocateButton'
+import GithubNotificationMessage from './components/GithubNotificationMessage'
 
 export enum Display {
     allocatedWorkers = 'allocatedWorkers',
@@ -69,10 +69,11 @@ const styles = createStyles({
     chromeSnack: {
         backgroundColor: '#f2f2f2',
         height: 75,
+        padding: 0,
+        paddingLeft: 8,
+        paddingRight: 12,
     },
-    chromeIcon: {
-        width: 55,
-    },
+
 })
 
 export interface State {
@@ -206,16 +207,18 @@ class App extends React.Component<WithStyles<typeof styles>, State> {
 
                     ContentProps={{
                         'aria-describedby': 'message-id',
-                        classes: {
-                            root: classes.chromeSnack,
-                        }
                     }}
-                    message={
-                        <div>
-                            <img className={classes.chromeIcon} src={chrome} />
-                        </div>
-                    }
-                />
+                    >
+                    <SnackbarContent
+                        classes= {{
+                            root: classes.chromeSnack,
+
+                        }}
+                        message={
+                            <GithubNotificationMessage />
+                        }
+                    />
+                </Snackbar>
             </div>
         )
     }

@@ -76,6 +76,9 @@ export interface SavedTimeFatigueTotalConstraint extends SavedTaskConstraint, Sa
     limit : number
 }
 
+export interface SavedCombinedMustWorkConstraint extends SavedTaskConstraint, SavedConstraintBase {
+}
+
 export interface SavedOverallTimeFatigueTotalConstraint extends SavedConstraintBase {
     limit : number
 }
@@ -100,10 +103,12 @@ export type SavedConstraintType =
     SavedTimeFatigueTotalConstraint |
     SavedOverallTimeFatigueTotalConstraint |
     SavedUnavailableConstraint |
-    SavedBuddyNemesisConstraint
+    SavedBuddyNemesisConstraint |
+    SavedCombinedMustWorkConstraint
 
 export interface SavedConstraints {
-    mustWork: SavedMustCannotWorkConstraint[]
+    combinedMustWork : SavedCombinedMustWorkConstraint[]
+    mustWork : SavedMustCannotWorkConstraint[]
     cannotWork : SavedMustCannotWorkConstraint[]
     atLeastWork : SavedAtLeastWorkConstraint[]
     timeFatigueTotal : SavedTimeFatigueTotalConstraint[]

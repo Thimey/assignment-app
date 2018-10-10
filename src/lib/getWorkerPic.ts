@@ -20,6 +20,8 @@ import mark from '../assets/mark.png'
 import marko from '../assets/marko.png'
 import niek from '../assets/niek.png'
 import noel from '../assets/noel.png'
+import orlando from '../assets/orlando.png'
+import paris from '../assets/paris.png'
 import richie from '../assets/richie.png'
 import sean from '../assets/sean.png'
 import simon from '../assets/simon.png'
@@ -107,6 +109,12 @@ export default function getPic(worker : Worker) {
 
         case 'niek':
             return niek
+
+        case 'orlando':
+            return orlando
+
+        case 'paris':
+            return paris
 
         case 'richie':
             return richie

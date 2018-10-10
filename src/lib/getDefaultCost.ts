@@ -100,7 +100,7 @@ function costRelease(
             return randomInRange(1, 10)
         }
 
-        return randomInRange(10, 20)
+        return randomInRange(20, 30)
     }
 
     return randomInRange(90, 100)

@@ -110,17 +110,6 @@ class AllocatedWorkerMatrix extends React.Component<Props> {
         scheduleStore.onWorkerFilter(filter)
     }
 
-    private renderCorner = () => {
-        return (
-            <CornerMatrixFilter
-                onTaskChange={this.handleTaskFilterChange}
-                onWorkerChange={this.handleWorkerFilterChange}
-                workerFilter={scheduleStore.scheduleWorkerFilter}
-                taskFilter={scheduleStore.scheduleTaskFilter}
-            />
-        )
-    }
-
     public render() {
         const { classes } = this.props
 
@@ -155,7 +144,12 @@ class AllocatedWorkerMatrix extends React.Component<Props> {
                                 renderCell={this.renderCell}
                                 renderColHeader={this.renderTime}
                                 renderRowHeader={this.renderWorker}
-                                renderCorner={this.renderCorner}
+                                renderCorner={<CornerMatrixFilter
+                                    onTaskChange={this.handleTaskFilterChange}
+                                    onWorkerChange={this.handleWorkerFilterChange}
+                                    workerFilter={scheduleStore.scheduleWorkerFilter}
+                                    taskFilter={scheduleStore.scheduleTaskFilter}
+                                />}
                                 cellWidthPx={SCHEDULE_CELL_WIDTH_PX}
                                 cellHeaderHeightPx={SCHEDULE_HEADER_CELL_HEIGHT_PX}
                                 cellContentHeightPx={SCHEDULE_CONTENT_CELL_HEIGHT_PX}

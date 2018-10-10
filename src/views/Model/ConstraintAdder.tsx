@@ -165,6 +165,8 @@ class MustCannotConstraint extends React.Component<Props, State> {
         let title = ''
         if (type === ConstraintType.mustWork) {
             title = 'must perform all'
+        } else if (type === ConstraintType.combinedMustWork) {
+            title = 'combined must perform all'
         } else if (type === ConstraintType.cannotWork) {
             title = 'cannot perform'
         } else if (type === ConstraintType.timeFatigueTotal) {

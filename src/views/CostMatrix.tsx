@@ -92,17 +92,6 @@ class CostMatrix extends React.Component<Props> {
         costStore.onWorkerFilter(filter)
     }
 
-    private renderCorner = () => {
-        return (
-            <CornerMatrixFilter
-                onTaskChange={this.handleTaskFilterChange}
-                onWorkerChange={this.handleWorkerFilterChange}
-                workerFilter={costStore.matrixWorkerFilter}
-                taskFilter={costStore.matrixTaskFilter}
-            />
-        )
-    }
-
     private restoreDefault = () => {
         // Restore the current costMatrix
         costStore.restoreDefault()
@@ -135,7 +124,12 @@ class CostMatrix extends React.Component<Props> {
                         rowHeaders={this.workers as Worker[]}
                         renderCell={this.renderCost}
                         renderColHeader={this.renderTask}
-                        renderCorner={this.renderCorner}
+                        renderCorner={<CornerMatrixFilter
+                            onTaskChange={this.handleTaskFilterChange}
+                            onWorkerChange={this.handleWorkerFilterChange}
+                            workerFilter={costStore.matrixWorkerFilter}
+                            taskFilter={costStore.matrixTaskFilter}
+                        />}
                         renderRowHeader={this.renderWorker}
                         cellWidthPx={COST_MATRIX_CELL_WIDTH_PX}
                         cellHeaderHeightPx={COST_MATRIX_HEADER_CELL_HEIGHT_PX}

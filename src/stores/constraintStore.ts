@@ -7,7 +7,6 @@ import {
     transformOverallTimeFatigueTotalConstraints,
     transformConsecutiveFatigueConstraints,
     transformUnavailableConstraints,
-    transformBuddyNemesisConstraints,
 } from '../lib/transformConstraints'
 
 import {
@@ -20,9 +19,11 @@ import {
     SavedConstraints,
     SavedBuddyNemesisConstraint,
     SavedUnavailableConstraint,
+    SavedCombinedMustWorkConstraint,
 } from '../data'
 
 class ConstraintStore {
+    public combinedMustWorkConstraints : IObservableArray<SavedCombinedMustWorkConstraint> = observable([])
     public mustWorkConstraints : IObservableArray<SavedMustCannotWorkConstraint> = observable([])
     public cannotWorkConstraints : IObservableArray<SavedMustCannotWorkConstraint> = observable([])
     public atLeastWorkConstraints : IObservableArray<SavedAtLeastWorkConstraint> = observable([])
@@ -35,6 +36,7 @@ class ConstraintStore {
 
     @action.bound
     public addConstraints(constraints : SavedConstraints) {
+        this.combinedMustWorkConstraints.replace(constraints.combinedMustWork)
         this.mustWorkConstraints.replace(constraints.mustWork)
         this.cannotWorkConstraints.replace(constraints.cannotWork)
         this.atLeastWorkConstraints.replace(constraints.atLeastWork)
@@ -48,7 +50,9 @@ class ConstraintStore {
 
     @action.bound
     public updateConstraint(type : ConstraintType, index : number, data : any) {
-        if (type === ConstraintType.mustWork) {
+        if (type === ConstraintType.combinedMustWork) {
+            this.combinedMustWorkConstraints[index] = data
+        } else if (type === ConstraintType.mustWork) {
             this.mustWorkConstraints[index] = data
         } else if (type === ConstraintType.cannotWork) {
             this.cannotWorkConstraints[index] = data
@@ -76,6 +80,7 @@ class ConstraintStore {
     @action.bound
     public disableEnableAllConstraints(newDisabled : boolean) {
         const newConstraints = {
+            combinedMustWork: this.setAllDisableEnable(this.combinedMustWorkConstraints, newDisabled),
             mustWork: this.setAllDisableEnable(this.mustWorkConstraints, newDisabled),
             cannotWork: this.setAllDisableEnable(this.cannotWorkConstraints, newDisabled),
             atLeastWork: this.setAllDisableEnable(this.atLeastWorkConstraints, newDisabled),
@@ -92,7 +97,13 @@ class ConstraintStore {
 
     @action.bound
     public addNewConstraint(type : ConstraintType) {
-        if (type === ConstraintType.mustWork) {
+        if (type === ConstraintType.combinedMustWork) {
+            this.combinedMustWorkConstraints.push({
+                workers: [],
+                tasks: [],
+                disabled: false,
+            })
+        } else if (type === ConstraintType.mustWork) {
             this.mustWorkConstraints.push({
                 workers: [],
                 tasks: [],
@@ -156,7 +167,9 @@ class ConstraintStore {
 
     @action.bound
     public deleteConstraint(type : ConstraintType, index : number) {
-        if (type === ConstraintType.mustWork) {
+        if (type === ConstraintType.combinedMustWork) {
+            this.combinedMustWorkConstraints.replace(this.combinedMustWorkConstraints.filter((_, i) => i !== index))
+        } else if (type === ConstraintType.mustWork) {
             this.mustWorkConstraints.replace(this.mustWorkConstraints.filter((_, i) => i !== index))
         } else if (type === ConstraintType.cannotWork) {
             this.cannotWorkConstraints.replace(this.cannotWorkConstraints.filter((_, i) => i !== index))
@@ -181,6 +194,7 @@ class ConstraintStore {
 
     public getConstraintsForSolver() : Constraints {
         return {
+            combinedMustWork: toJS(this.combinedMustWorkConstraints).filter(this.filterDisabled) as any,
             mustWork: transformMustCannotAtLeastConstraints(toJS(this.mustWorkConstraints).filter(this.filterDisabled)) as any,
             cannotWork: transformMustCannotAtLeastConstraints(toJS(this.cannotWorkConstraints).filter(this.filterDisabled)) as any,
             atLeastWork: transformMustCannotAtLeastConstraints(toJS(this.atLeastWorkConstraints).filter(this.filterDisabled)) as any,
@@ -188,13 +202,14 @@ class ConstraintStore {
             overallTimeFatigueTotal: transformOverallTimeFatigueTotalConstraints(toJS(this.overallTimeFatigueTotalConstraints).filter(this.filterDisabled)) as any,
             overallTimeFatigueConsecutive: transformConsecutiveFatigueConstraints(toJS(this.overallTimeFatigueConsecutiveConstraints).filter(this.filterDisabled)) as any,
             unavailable: transformUnavailableConstraints(toJS(this.unavailableConstraints).filter(this.filterDisabled)) as any,
-            buddy: transformBuddyNemesisConstraints(toJS(this.buddyConstraints).filter(this.filterDisabled)) as any,
-            nemesis: transformBuddyNemesisConstraints(toJS(this.nemesisConstraints).filter(this.filterDisabled)) as any,
+            buddy: toJS(this.buddyConstraints).filter(this.filterDisabled) as any,
+            nemesis: toJS(this.nemesisConstraints).filter(this.filterDisabled) as any,
         }
     }
 
     public getConstraintsForDb() : SavedConstraints {
         return {
+            combinedMustWork: toJS(this.combinedMustWorkConstraints) as any,
             mustWork: toJS(this.mustWorkConstraints) as any,
             cannotWork: toJS(this.cannotWorkConstraints) as any,
             atLeastWork: toJS(this.atLeastWorkConstraints) as any,
